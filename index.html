@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة استكشاف الفضاء التفاعلية 3D | Space Explorer 3D Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-space-deep: #061024;
+            --bg-panel: rgba(6, 16, 36, 0.88);
+            --bg-card: rgba(10, 25, 54, 0.92);
+            --border-blue: rgba(30, 136, 229, 0.42);
+            --accent-blue: #1e88e5;
+            --accent-blue-bright: #38bdf8;
+            --accent-orange: #ff6b00;
+            --accent-orange-bright: #ff9100;
+            --accent-emerald: #10b981;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; overflow: hidden; background-color: var(--bg-space-deep);
+            color: var(--text-primary);
+            font-family: 'Cairo', 'Inter', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body.lang-en { font-family: 'Inter', 'Cairo', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; }
+
+        /* Main HUD Layer */
+        #hud-layer {
+            position: absolute; inset: 0; pointer-events: none; z-index: 10;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 14px;
+        }
+
+        .top-hud {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            gap: 10px; width: 100%;
+        }
+
+        .hud-controls {
+            display: flex; gap: 8px; align-items: center; pointer-events: auto; flex-wrap: wrap;
+        }
+
+        .hud-btn {
+            background: var(--bg-panel); backdrop-filter: blur(12px);
+            border: 1px solid var(--border-blue); color: var(--text-primary);
+            padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 700;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+            transition: all 0.2s ease; font-family: inherit;
+            box-shadow: 0 4px 15px rgba(6, 16, 36, 0.65);
+        }
+        .hud-btn:hover {
+            border-color: var(--accent-blue-bright); color: var(--accent-blue-bright);
+            background: rgba(10, 25, 54, 0.98); transform: translateY(-1px);
+        }
+        .hud-btn.orange-btn {
+            border-color: rgba(255, 107, 0, 0.7); color: var(--accent-orange-bright);
+        }
+        .hud-btn.orange-btn:hover {
+            background: rgba(255, 107, 0, 0.22); border-color: var(--accent-orange); color: #fff;
+        }
+
+        /* Center Mission Banner */
+        .mission-status-panel {
+            background: var(--bg-panel); backdrop-filter: blur(14px);
+            border: 1px solid var(--border-blue);
+            border-top: 3px solid var(--accent-orange);
+            border-radius: 10px; padding: 9px 22px; text-align: center;
+            pointer-events: auto; max-width: 560px; margin: 0 auto;
+            box-shadow: 0 12px 35px rgba(6, 16, 36, 0.85), 0 0 22px rgba(30, 136, 229, 0.18);
+        }
+        .status-tag {
+            font-size: 11px; color: var(--accent-orange-bright); text-transform: uppercase;
+            letter-spacing: 1.4px; display: block; margin-bottom: 2px; font-weight: 700;
+        }
+        .mission-status-panel h1 { margin: 0; font-size: 17px; font-weight: 800; color: #fff; }
+        .mission-status-panel p { margin: 3px 0 0; font-size: 12.5px; color: var(--text-secondary); }
+
+        /* Game Stats & Telemetry Box */
+        .game-stats-box {
+            background: var(--bg-panel); backdrop-filter: blur(12px);
+            border: 1px solid var(--border-blue);
+            border-left: 3px solid var(--accent-orange);
+            border-radius: 10px; padding: 8px 14px; display: flex; gap: 14px; pointer-events: auto;
+            font-size: 12px; box-shadow: 0 8px 25px rgba(6, 16, 36, 0.78);
+        }
+        .stat-item span.label { display: block; color: var(--text-secondary); font-size: 10px; text-transform: uppercase; }
+        .stat-item span.val { color: var(--accent-blue-bright); font-weight: 700; font-size: 13.5px; }
+        .stat-item span.val.orange { color: var(--accent-orange-bright); }
+        .stat-item span.val.green { color: var(--accent-emerald); }
+
+        /* Start Screen / Mission Briefing */
+        #mission-briefing {
+            position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%);
+            width: 94%; max-width: 980px; pointer-events: auto; z-index: 20;
+            text-align: center;
+        }
+
+        .destinations-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+            gap: 16px; margin-bottom: 22px;
+        }
+
+        .dest-card {
+            background: var(--bg-card); backdrop-filter: blur(16px);
+            border: 1px solid var(--border-blue); border-radius: 10px;
+            padding: 18px; text-align: start; cursor: pointer;
+            transition: all 0.25s ease; position: relative; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(6, 16, 36, 0.75);
+        }
+        .dest-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: var(--accent-blue); opacity: 0.45; transition: all 0.25s;
+        }
+        .dest-card:hover {
+            border-color: var(--accent-blue-bright); transform: translateY(-4px);
+            box-shadow: 0 14px 35px rgba(30, 136, 229, 0.28);
+        }
+        .dest-card.selected {
+            border-color: var(--accent-orange);
+            background: linear-gradient(160deg, rgba(10, 25, 54, 0.97) 0%, rgba(28, 38, 72, 0.95) 100%);
+            box-shadow: 0 0 32px rgba(255, 107, 0, 0.32), inset 0 0 18px rgba(30, 136, 229, 0.22);
+        }
+        .dest-card.selected::before {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-orange));
+            opacity: 1;
+        }
+
+        .dest-meta {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px; font-size: 11px; color: var(--accent-blue-bright); font-weight: 700;
+        }
+        .dest-card.selected .dest-meta { color: var(--accent-orange-bright); }
+        .dest-card h3 { margin: 0 0 6px; font-size: 17px; font-weight: 800; color: #fff; }
+        .dest-card p { margin: 0 0 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+        .dest-specs {
+            border-top: 1px solid rgba(30, 136, 229, 0.25); padding-top: 8px;
+            display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1;
+        }
+        .badge-pill {
+            background: rgba(16, 185, 129, 0.18); color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            padding: 2px 8px; border-radius: 99px; font-size: 10px;
+        }
+
+        /* Launch Button */
+        .ignite-btn {
+            background: linear-gradient(135deg, var(--accent-orange) 0%, #e65100 100%);
+            color: #fff; border: 2px solid var(--accent-orange-bright);
+            padding: 15px 44px; font-size: 16px; font-weight: 800;
+            border-radius: 10px; cursor: pointer; letter-spacing: 0.5px;
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.55), 0 0 14px rgba(30, 136, 229, 0.4);
+            transition: all 0.22s ease; font-family: inherit;
+        }
+        .ignite-btn:hover {
+            background: linear-gradient(135deg, var(--accent-orange-bright) 0%, var(--accent-orange) 100%);
+            box-shadow: 0 0 44px rgba(255, 145, 0, 0.85), 0 0 22px rgba(30, 136, 229, 0.55);
+            transform: scale(1.04);
+        }
+
+        /* Countdown Overlay */
+        #countdown-overlay {
+            position: absolute; top: 44%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; pointer-events: none; z-index: 25; display: none;
+        }
+        #countdown-num {
+            font-size: 82px; font-weight: 800; color: #fff;
+            text-shadow: 0 0 35px rgba(255, 107, 0, 0.95), 0 0 18px rgba(30, 136, 229, 0.85);
+        }
+        #countdown-sub {
+            font-size: 14px; color: var(--accent-orange-bright); letter-spacing: 2px;
+            text-transform: uppercase; margin-top: 4px; font-weight: 700;
+        }
+
+        /* Interactive Flight Minigame HUD */
+        #flight-minigame-hud {
+            position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+            width: 92%; max-width: 580px; background: var(--bg-panel);
+            border: 1px solid var(--border-blue); border-radius: 12px;
+            padding: 12px 18px; display: none; z-index: 22; backdrop-filter: blur(14px);
+            pointer-events: auto; text-align: center;
+            box-shadow: 0 12px 35px rgba(6, 16, 36, 0.9);
+        }
+        .progress-labels {
+            display: flex; justify-content: space-between; font-size: 11px;
+            color: var(--accent-blue-bright); margin-bottom: 6px; font-weight: 700;
+        }
+        .progress-track {
+            width: 100%; height: 8px; background: rgba(10, 25, 54, 0.95);
+            border-radius: 6px; overflow: hidden; border: 1px solid rgba(30, 136, 229, 0.35);
+            margin-bottom: 10px;
+        }
+        .progress-fill {
+            width: 0%; height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-orange));
+            box-shadow: 0 0 12px var(--accent-orange);
+        }
+        #flight-action-zone {
+            display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;
+        }
+        .flight-qte-btn {
+            background: linear-gradient(135deg, #0284c7, #1e88e5);
+            border: 2px solid var(--accent-orange-bright);
+            color: #fff; padding: 10px 22px; border-radius: 8px;
+            font-size: 14px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 0 22px rgba(255, 107, 0, 0.65);
+            animation: pulseQTE 0.8s infinite alternate;
+            font-family: inherit; display: none;
+        }
+        @keyframes pulseQTE {
+            from { transform: scale(1); box-shadow: 0 0 14px rgba(255, 107, 0, 0.5); }
+            to { transform: scale(1.06); box-shadow: 0 0 28px rgba(255, 145, 0, 0.95); }
+        }
+        #flight-hint {
+            font-size: 12.5px; color: #e2e8f0; font-weight: 600;
+        }
+
+        /* Floating XP Popup */
+        #xp-toast {
+            position: absolute; top: 24%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(6, 16, 36, 0.94); border: 2px solid var(--accent-orange);
+            color: var(--accent-orange-bright); padding: 10px 24px; border-radius: 99px;
+            font-size: 16px; font-weight: 800; pointer-events: none; z-index: 40;
+            display: none; box-shadow: 0 0 30px rgba(255, 107, 0, 0.6);
+        }
+
+        /* Hover Reticle */
+        #target-reticle {
+            position: absolute; pointer-events: none; display: none; z-index: 30;
+            background: rgba(6, 16, 36, 0.95); border: 1px solid var(--accent-orange);
+            padding: 6px 12px; border-radius: 8px; font-size: 12px; color: #fff;
+            transform: translate(-50%, -145%); white-space: nowrap;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 12px rgba(255, 107, 0, 0.4);
+        }
+        #target-reticle span { color: var(--accent-orange-bright); display: block; font-size: 10px; }
+
+        /* Interactive Artifact Scanner & Trivia Modal Card */
+        #hardware-card {
+            position: absolute; bottom: 82px; right: 16px;
+            background: rgba(6, 16, 36, 0.95); backdrop-filter: blur(18px);
+            border: 1px solid var(--border-blue);
+            border-right: 4px solid var(--accent-orange);
+            border-radius: 12px; padding: 18px; width: 92%; max-width: 440px;
+            display: none; pointer-events: auto; z-index: 26;
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.92), 0 0 28px rgba(30, 136, 229, 0.25);
+        }
+        body.lang-en #hardware-card {
+            right: auto; left: 16px;
+            border-right: 1px solid var(--border-blue);
+            border-left: 4px solid var(--accent-orange);
+        }
+
+        .card-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            gap: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--border-blue);
+            padding-bottom: 10px;
+        }
+        .card-header h3 { margin: 0; font-size: 16px; font-weight: 800; color: #fff; }
+        .card-coords { font-size: 11px; color: var(--accent-orange-bright); margin-top: 3px; display: block; }
+
+        .card-btns { display: flex; gap: 6px; }
+        .icon-btn {
+            background: rgba(10, 25, 54, 0.95); border: 1px solid var(--border-blue);
+            color: #fff; width: 34px; height: 34px; border-radius: 8px;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+            font-size: 15px; transition: all 0.2s;
+        }
+        .icon-btn:hover { border-color: var(--accent-orange); color: var(--accent-orange-bright); }
+        .icon-btn.close:hover { border-color: #ef4444; color: #ef4444; }
+
+        /* Deep Scan Mini-Game Section inside Card */
+        #scan-section {
+            background: rgba(10, 25, 54, 0.88);
+            border: 1px dashed var(--accent-blue-bright);
+            border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 10px;
+        }
+        .scan-btn {
+            background: linear-gradient(135deg, var(--accent-blue), #0284c7);
+            color: #fff; border: 1px solid var(--accent-blue-bright);
+            padding: 11px 22px; border-radius: 8px; font-size: 14px; font-weight: 700;
+            cursor: pointer; font-family: inherit; width: 100%;
+            box-shadow: 0 0 18px rgba(30, 136, 229, 0.45);
+            transition: all 0.2s;
+        }
+        .scan-btn:hover {
+            background: linear-gradient(135deg, var(--accent-orange), #ea580c);
+            border-color: var(--accent-orange-bright);
+        }
+        .scan-bar-wrap {
+            width: 100%; height: 8px; background: #061024; border-radius: 6px;
+            overflow: hidden; margin-top: 10px; display: none;
+            border: 1px solid var(--border-blue);
+        }
+        .scan-bar-fill {
+            width: 0%; height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue-bright), var(--accent-orange));
+        }
+
+        /* Discovered Content & Trivia Quiz */
+        #discovered-content { display: none; }
+        #hardware-desc {
+            font-size: 13.5px; line-height: 1.65; color: #e2e8f0; margin: 0 0 12px;
+        }
+        .hardware-specs-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+            background: rgba(10, 25, 54, 0.82); padding: 9px 11px; border-radius: 8px;
+            border: 1px solid rgba(30, 136, 229, 0.25);
+            font-size: 11px; margin-bottom: 12px;
+        }
+        .spec-cell span { display: block; color: var(--accent-blue-bright); font-size: 10px; }
+        .spec-cell strong { color: #f8fafc; font-weight: 700; }
+
+        /* Trivia Quiz Box */
+        #quiz-box {
+            background: rgba(15, 34, 72, 0.9); border: 1px solid rgba(255, 107, 0, 0.5);
+            border-radius: 8px; padding: 12px;
+        }
+        .quiz-title {
+            font-size: 11.5px; color: var(--accent-orange-bright); font-weight: 800;
+            margin-bottom: 6px; display: block;
+        }
+        #quiz-question {
+            font-size: 13px; color: #fff; font-weight: 700; margin: 0 0 8px;
+        }
+        .quiz-options {
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .quiz-opt-btn {
+            background: rgba(6, 16, 36, 0.92); border: 1px solid var(--border-blue);
+            color: #e2e8f0; padding: 8px 12px; border-radius: 6px; font-size: 12.5px;
+            text-align: start; cursor: pointer; font-family: inherit; transition: all 0.2s;
+        }
+        .quiz-opt-btn:hover:not(:disabled) {
+            border-color: var(--accent-orange); background: rgba(255, 107, 0, 0.15);
+        }
+        .quiz-opt-btn.correct {
+            border-color: var(--accent-emerald); background: rgba(16, 185, 129, 0.22); color: #6ee7b7;
+        }
+        .quiz-opt-btn.wrong {
+            border-color: #ef4444; background: rgba(239, 68, 68, 0.2); color: #fca5a5;
+        }
+
+        /* Mission Accomplished Celebration Modal */
+        #victory-modal {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(6, 16, 36, 0.96); backdrop-filter: blur(20px);
+            border: 2px solid var(--accent-orange); border-radius: 14px;
+            padding: 26px 28px; width: 92%; max-width: 480px; text-align: center;
+            display: none; pointer-events: auto; z-index: 35;
+            box-shadow: 0 0 60px rgba(255, 107, 0, 0.45), 0 0 30px rgba(30, 136, 229, 0.35);
+        }
+        .victory-medal {
+            font-size: 52px; margin-bottom: 8px; display: block;
+            filter: drop-shadow(0 0 16px rgba(255, 145, 0, 0.8));
+        }
+        #victory-modal h2 { margin: 0 0 8px; font-size: 22px; color: #fff; font-weight: 800; }
+        #victory-modal p { margin: 0 0 18px; font-size: 14px; color: #cbd5e1; line-height: 1.6; }
+        .victory-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+        /* Bottom Targets Dock */
+        #targets-dock {
+            display: none; gap: 8px; align-self: center; flex-wrap: wrap;
+            justify-content: center; pointer-events: auto; z-index: 15;
+            background: var(--bg-panel); backdrop-filter: blur(12px);
+            border: 1px solid var(--border-blue); padding: 8px 14px; border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(6, 16, 36, 0.85);
+        }
+        .dock-btn {
+            background: rgba(10, 25, 54, 0.92); border: 1px solid var(--border-blue);
+            color: #e2e8f0; padding: 8px 14px; border-radius: 8px; font-size: 12.5px;
+            font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit;
+        }
+        .dock-btn:hover, .dock-btn.active {
+            border-color: var(--accent-orange); color: var(--accent-orange-bright);
+            background: rgba(255, 107, 0, 0.16);
+        }
+        .dock-btn.scanned {
+            border-color: var(--accent-emerald); color: #6ee7b7;
+        }
+
+        @media (max-width: 768px) {
+            .top-hud { flex-direction: column; align-items: center; }
+            .game-stats-box { width: 100%; justify-content: space-around; }
+            .mission-status-panel { width: 100%; }
+            #hardware-card, body.lang-en #hardware-card {
+                bottom: 76px; left: 4%; right: 4%; width: 92%; max-width: none;
+                max-height: 62vh; overflow-y: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="xp-toast" class="mono">+250 XP!</div>
+
+    <div id="target-reticle">
+        <span class="mono" id="reticle-code">SCAN TARGET // 01</span>
+        <strong id="reticle-name">Apollo 11</strong>
+    </div>
+
+    <!-- Main HUD Layer -->
+    <div id="hud-layer">
+        <div class="top-hud">
+            <div class="hud-controls">
+                <button class="hud-btn mono" id="lang-btn" onclick="toggleLanguage()">EN / عربي</button>
+                <button class="hud-btn orange-btn" id="back-btn" style="display: none;">↩ العودة للقائمة الرئيسية</button>
+            </div>
+
+            <div class="mission-status-panel">
+                <span class="status-tag mono" id="status-tag">GAME // MISSION CONTROL</span>
+                <h1 id="phase-title">مغامرة استكشاف الفضاء 3D</h1>
+             
