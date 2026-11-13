@@ -1,418 +1,2157 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة استكشاف الفضاء التفاعلية 3D | Space Explorer 3D Game</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-space-deep: #061024;
-            --bg-panel: rgba(6, 16, 36, 0.88);
-            --bg-card: rgba(10, 25, 54, 0.92);
-            --border-blue: rgba(30, 136, 229, 0.42);
-            --accent-blue: #1e88e5;
-            --accent-blue-bright: #38bdf8;
-            --accent-orange: #ff6b00;
-            --accent-orange-bright: #ff9100;
-            --accent-emerald: #10b981;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Space Explorer 3D | لعبة استكشاف الفضاء التفاعلية</title>
 
-        * { box-sizing: border-box; }
-        body {
-            margin: 0; overflow: hidden; background-color: var(--bg-space-deep);
-            color: var(--text-primary);
-            font-family: 'Cairo', 'Inter', sans-serif;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        body.lang-en { font-family: 'Inter', 'Cairo', sans-serif; }
-        .mono { font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; }
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        /* Main HUD Layer */
-        #hud-layer {
-            position: absolute; inset: 0; pointer-events: none; z-index: 10;
-            display: flex; flex-direction: column; justify-content: space-between;
-            padding: 14px;
-        }
+  <!-- Google Fonts: Cairo (Arabic) & Orbitron / Inter (Aerospace Telemetry) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet" />
 
-        .top-hud {
-            display: flex; justify-content: space-between; align-items: flex-start;
-            gap: 10px; width: 100%;
-        }
+  <!-- Three.js r128, OrbitControls & GSAP 3.12.2 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-        .hud-controls {
-            display: flex; gap: 8px; align-items: center; pointer-events: auto; flex-wrap: wrap;
-        }
+  <style>
+    :root {
+      --space-dark: #061024;
+      --space-navy: #0a1936;
+      --space-blue: #1e88e5;
+      --exhaust-orange: #ff6b00;
+      --exhaust-amber: #ff9100;
+    }
 
-        .hud-btn {
-            background: var(--bg-panel); backdrop-filter: blur(12px);
-            border: 1px solid var(--border-blue); color: var(--text-primary);
-            padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 700;
-            cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-            transition: all 0.2s ease; font-family: inherit;
-            box-shadow: 0 4px 15px rgba(6, 16, 36, 0.65);
-        }
-        .hud-btn:hover {
-            border-color: var(--accent-blue-bright); color: var(--accent-blue-bright);
-            background: rgba(10, 25, 54, 0.98); transform: translateY(-1px);
-        }
-        .hud-btn.orange-btn {
-            border-color: rgba(255, 107, 0, 0.7); color: var(--accent-orange-bright);
-        }
-        .hud-btn.orange-btn:hover {
-            background: rgba(255, 107, 0, 0.22); border-color: var(--accent-orange); color: #fff;
-        }
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
 
-        /* Center Mission Banner */
-        .mission-status-panel {
-            background: var(--bg-panel); backdrop-filter: blur(14px);
-            border: 1px solid var(--border-blue);
-            border-top: 3px solid var(--accent-orange);
-            border-radius: 10px; padding: 9px 22px; text-align: center;
-            pointer-events: auto; max-width: 560px; margin: 0 auto;
-            box-shadow: 0 12px 35px rgba(6, 16, 36, 0.85), 0 0 22px rgba(30, 136, 229, 0.18);
-        }
-        .status-tag {
-            font-size: 11px; color: var(--accent-orange-bright); text-transform: uppercase;
-            letter-spacing: 1.4px; display: block; margin-bottom: 2px; font-weight: 700;
-        }
-        .mission-status-panel h1 { margin: 0; font-size: 17px; font-weight: 800; color: #fff; }
-        .mission-status-panel p { margin: 3px 0 0; font-size: 12.5px; color: var(--text-secondary); }
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: var(--space-dark);
+      color: #f0f6ff;
+      font-family: 'Cairo', 'Inter', sans-serif;
+    }
 
-        /* Game Stats & Telemetry Box */
-        .game-stats-box {
-            background: var(--bg-panel); backdrop-filter: blur(12px);
-            border: 1px solid var(--border-blue);
-            border-left: 3px solid var(--accent-orange);
-            border-radius: 10px; padding: 8px 14px; display: flex; gap: 14px; pointer-events: auto;
-            font-size: 12px; box-shadow: 0 8px 25px rgba(6, 16, 36, 0.78);
-        }
-        .stat-item span.label { display: block; color: var(--text-secondary); font-size: 10px; text-transform: uppercase; }
-        .stat-item span.val { color: var(--accent-blue-bright); font-weight: 700; font-size: 13.5px; }
-        .stat-item span.val.orange { color: var(--accent-orange-bright); }
-        .stat-item span.val.green { color: var(--accent-emerald); }
+    .font-tech {
+      font-family: 'Orbitron', 'Cairo', sans-serif;
+    }
 
-        /* Start Screen / Mission Briefing */
-        #mission-briefing {
-            position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%);
-            width: 94%; max-width: 980px; pointer-events: auto; z-index: 20;
-            text-align: center;
-        }
+    /* NASA / SpaceX Aerospace Telemetry Glass Panel */
+    .telemetry-panel {
+      background: linear-gradient(145deg, rgba(10, 25, 54, 0.88), rgba(6, 16, 36, 0.94));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(30, 136, 229, 0.35);
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.65), inset 0 0 20px rgba(30, 136, 229, 0.12);
+    }
 
-        .destinations-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
-            gap: 16px; margin-bottom: 22px;
-        }
+    .telemetry-orange-border {
+      border-color: rgba(255, 107, 0, 0.55);
+      box-shadow: 0 8px 30px rgba(255, 107, 0, 0.18), inset 0 0 15px rgba(255, 145, 0, 0.1);
+    }
 
-        .dest-card {
-            background: var(--bg-card); backdrop-filter: blur(16px);
-            border: 1px solid var(--border-blue); border-radius: 10px;
-            padding: 18px; text-align: start; cursor: pointer;
-            transition: all 0.25s ease; position: relative; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(6, 16, 36, 0.75);
-        }
-        .dest-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-            background: var(--accent-blue); opacity: 0.45; transition: all 0.25s;
-        }
-        .dest-card:hover {
-            border-color: var(--accent-blue-bright); transform: translateY(-4px);
-            box-shadow: 0 14px 35px rgba(30, 136, 229, 0.28);
-        }
-        .dest-card.selected {
-            border-color: var(--accent-orange);
-            background: linear-gradient(160deg, rgba(10, 25, 54, 0.97) 0%, rgba(28, 38, 72, 0.95) 100%);
-            box-shadow: 0 0 32px rgba(255, 107, 0, 0.32), inset 0 0 18px rgba(30, 136, 229, 0.22);
-        }
-        .dest-card.selected::before {
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-orange));
-            opacity: 1;
-        }
+    /* Custom Scrollbar for Modals */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #061024;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e88e5;
+      border-radius: 9999px;
+    }
 
-        .dest-meta {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 8px; font-size: 11px; color: var(--accent-blue-bright); font-weight: 700;
-        }
-        .dest-card.selected .dest-meta { color: var(--accent-orange-bright); }
-        .dest-card h3 { margin: 0 0 6px; font-size: 17px; font-weight: 800; color: #fff; }
-        .dest-card p { margin: 0 0 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
-        .dest-specs {
-            border-top: 1px solid rgba(30, 136, 229, 0.25); padding-top: 8px;
-            display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1;
-        }
-        .badge-pill {
-            background: rgba(16, 185, 129, 0.18); color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.5);
-            padding: 2px 8px; border-radius: 99px; font-size: 10px;
-        }
+    /* Pulse Animations */
+    @keyframes pulseOrange {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.7);
+      }
+      50% {
+        box-shadow: 0 0 0 14px rgba(255, 107, 0, 0);
+      }
+    }
+    .animate-pulse-orange {
+      animation: pulseOrange 1.6s infinite;
+    }
 
-        /* Launch Button */
-        .ignite-btn {
-            background: linear-gradient(135deg, var(--accent-orange) 0%, #e65100 100%);
-            color: #fff; border: 2px solid var(--accent-orange-bright);
-            padding: 15px 44px; font-size: 16px; font-weight: 800;
-            border-radius: 10px; cursor: pointer; letter-spacing: 0.5px;
-            box-shadow: 0 0 30px rgba(255, 107, 0, 0.55), 0 0 14px rgba(30, 136, 229, 0.4);
-            transition: all 0.22s ease; font-family: inherit;
-        }
-        .ignite-btn:hover {
-            background: linear-gradient(135deg, var(--accent-orange-bright) 0%, var(--accent-orange) 100%);
-            box-shadow: 0 0 44px rgba(255, 145, 0, 0.85), 0 0 22px rgba(30, 136, 229, 0.55);
-            transform: scale(1.04);
-        }
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+    .scanline-overlay {
+      background: linear-gradient(to bottom, transparent, rgba(30, 136, 229, 0.18), transparent);
+      animation: scanline 3s linear infinite;
+    }
 
-        /* Countdown Overlay */
-        #countdown-overlay {
-            position: absolute; top: 44%; left: 50%; transform: translate(-50%, -50%);
-            text-align: center; pointer-events: none; z-index: 25; display: none;
-        }
-        #countdown-num {
-            font-size: 82px; font-weight: 800; color: #fff;
-            text-shadow: 0 0 35px rgba(255, 107, 0, 0.95), 0 0 18px rgba(30, 136, 229, 0.85);
-        }
-        #countdown-sub {
-            font-size: 14px; color: var(--accent-orange-bright); letter-spacing: 2px;
-            text-transform: uppercase; margin-top: 4px; font-weight: 700;
-        }
+    /* Floating XP Toast */
+    @keyframes floatUpFade {
+      0% { opacity: 1; transform: translate(-50%, 0) scale(0.95); }
+      100% { opacity: 0; transform: translate(-50%, -65px) scale(1.15); }
+    }
+    .xp-toast {
+      position: fixed;
+      pointer-events: none;
+      z-index: 60;
+      animation: floatUpFade 1.4s ease-out forwards;
+    }
 
-        /* Interactive Flight Minigame HUD */
-        #flight-minigame-hud {
-            position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
-            width: 92%; max-width: 580px; background: var(--bg-panel);
-            border: 1px solid var(--border-blue); border-radius: 12px;
-            padding: 12px 18px; display: none; z-index: 22; backdrop-filter: blur(14px);
-            pointer-events: auto; text-align: center;
-            box-shadow: 0 12px 35px rgba(6, 16, 36, 0.9);
-        }
-        .progress-labels {
-            display: flex; justify-content: space-between; font-size: 11px;
-            color: var(--accent-blue-bright); margin-bottom: 6px; font-weight: 700;
-        }
-        .progress-track {
-            width: 100%; height: 8px; background: rgba(10, 25, 54, 0.95);
-            border-radius: 6px; overflow: hidden; border: 1px solid rgba(30, 136, 229, 0.35);
-            margin-bottom: 10px;
-        }
-        .progress-fill {
-            width: 0%; height: 100%;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-orange));
-            box-shadow: 0 0 12px var(--accent-orange);
-        }
-        #flight-action-zone {
-            display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;
-        }
-        .flight-qte-btn {
-            background: linear-gradient(135deg, #0284c7, #1e88e5);
-            border: 2px solid var(--accent-orange-bright);
-            color: #fff; padding: 10px 22px; border-radius: 8px;
-            font-size: 14px; font-weight: 800; cursor: pointer;
-            box-shadow: 0 0 22px rgba(255, 107, 0, 0.65);
-            animation: pulseQTE 0.8s infinite alternate;
-            font-family: inherit; display: none;
-        }
-        @keyframes pulseQTE {
-            from { transform: scale(1); box-shadow: 0 0 14px rgba(255, 107, 0, 0.5); }
-            to { transform: scale(1.06); box-shadow: 0 0 28px rgba(255, 145, 0, 0.95); }
-        }
-        #flight-hint {
-            font-size: 12.5px; color: #e2e8f0; font-weight: 600;
-        }
-
-        /* Floating XP Popup */
-        #xp-toast {
-            position: absolute; top: 24%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(6, 16, 36, 0.94); border: 2px solid var(--accent-orange);
-            color: var(--accent-orange-bright); padding: 10px 24px; border-radius: 99px;
-            font-size: 16px; font-weight: 800; pointer-events: none; z-index: 40;
-            display: none; box-shadow: 0 0 30px rgba(255, 107, 0, 0.6);
-        }
-
-        /* Hover Reticle */
-        #target-reticle {
-            position: absolute; pointer-events: none; display: none; z-index: 30;
-            background: rgba(6, 16, 36, 0.95); border: 1px solid var(--accent-orange);
-            padding: 6px 12px; border-radius: 8px; font-size: 12px; color: #fff;
-            transform: translate(-50%, -145%); white-space: nowrap;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 12px rgba(255, 107, 0, 0.4);
-        }
-        #target-reticle span { color: var(--accent-orange-bright); display: block; font-size: 10px; }
-
-        /* Interactive Artifact Scanner & Trivia Modal Card */
-        #hardware-card {
-            position: absolute; bottom: 82px; right: 16px;
-            background: rgba(6, 16, 36, 0.95); backdrop-filter: blur(18px);
-            border: 1px solid var(--border-blue);
-            border-right: 4px solid var(--accent-orange);
-            border-radius: 12px; padding: 18px; width: 92%; max-width: 440px;
-            display: none; pointer-events: auto; z-index: 26;
-            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.92), 0 0 28px rgba(30, 136, 229, 0.25);
-        }
-        body.lang-en #hardware-card {
-            right: auto; left: 16px;
-            border-right: 1px solid var(--border-blue);
-            border-left: 4px solid var(--accent-orange);
-        }
-
-        .card-header {
-            display: flex; justify-content: space-between; align-items: flex-start;
-            gap: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--border-blue);
-            padding-bottom: 10px;
-        }
-        .card-header h3 { margin: 0; font-size: 16px; font-weight: 800; color: #fff; }
-        .card-coords { font-size: 11px; color: var(--accent-orange-bright); margin-top: 3px; display: block; }
-
-        .card-btns { display: flex; gap: 6px; }
-        .icon-btn {
-            background: rgba(10, 25, 54, 0.95); border: 1px solid var(--border-blue);
-            color: #fff; width: 34px; height: 34px; border-radius: 8px;
-            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-            font-size: 15px; transition: all 0.2s;
-        }
-        .icon-btn:hover { border-color: var(--accent-orange); color: var(--accent-orange-bright); }
-        .icon-btn.close:hover { border-color: #ef4444; color: #ef4444; }
-
-        /* Deep Scan Mini-Game Section inside Card */
-        #scan-section {
-            background: rgba(10, 25, 54, 0.88);
-            border: 1px dashed var(--accent-blue-bright);
-            border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 10px;
-        }
-        .scan-btn {
-            background: linear-gradient(135deg, var(--accent-blue), #0284c7);
-            color: #fff; border: 1px solid var(--accent-blue-bright);
-            padding: 11px 22px; border-radius: 8px; font-size: 14px; font-weight: 700;
-            cursor: pointer; font-family: inherit; width: 100%;
-            box-shadow: 0 0 18px rgba(30, 136, 229, 0.45);
-            transition: all 0.2s;
-        }
-        .scan-btn:hover {
-            background: linear-gradient(135deg, var(--accent-orange), #ea580c);
-            border-color: var(--accent-orange-bright);
-        }
-        .scan-bar-wrap {
-            width: 100%; height: 8px; background: #061024; border-radius: 6px;
-            overflow: hidden; margin-top: 10px; display: none;
-            border: 1px solid var(--border-blue);
-        }
-        .scan-bar-fill {
-            width: 0%; height: 100%;
-            background: linear-gradient(90deg, var(--accent-blue-bright), var(--accent-orange));
-        }
-
-        /* Discovered Content & Trivia Quiz */
-        #discovered-content { display: none; }
-        #hardware-desc {
-            font-size: 13.5px; line-height: 1.65; color: #e2e8f0; margin: 0 0 12px;
-        }
-        .hardware-specs-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-            background: rgba(10, 25, 54, 0.82); padding: 9px 11px; border-radius: 8px;
-            border: 1px solid rgba(30, 136, 229, 0.25);
-            font-size: 11px; margin-bottom: 12px;
-        }
-        .spec-cell span { display: block; color: var(--accent-blue-bright); font-size: 10px; }
-        .spec-cell strong { color: #f8fafc; font-weight: 700; }
-
-        /* Trivia Quiz Box */
-        #quiz-box {
-            background: rgba(15, 34, 72, 0.9); border: 1px solid rgba(255, 107, 0, 0.5);
-            border-radius: 8px; padding: 12px;
-        }
-        .quiz-title {
-            font-size: 11.5px; color: var(--accent-orange-bright); font-weight: 800;
-            margin-bottom: 6px; display: block;
-        }
-        #quiz-question {
-            font-size: 13px; color: #fff; font-weight: 700; margin: 0 0 8px;
-        }
-        .quiz-options {
-            display: flex; flex-direction: column; gap: 6px;
-        }
-        .quiz-opt-btn {
-            background: rgba(6, 16, 36, 0.92); border: 1px solid var(--border-blue);
-            color: #e2e8f0; padding: 8px 12px; border-radius: 6px; font-size: 12.5px;
-            text-align: start; cursor: pointer; font-family: inherit; transition: all 0.2s;
-        }
-        .quiz-opt-btn:hover:not(:disabled) {
-            border-color: var(--accent-orange); background: rgba(255, 107, 0, 0.15);
-        }
-        .quiz-opt-btn.correct {
-            border-color: var(--accent-emerald); background: rgba(16, 185, 129, 0.22); color: #6ee7b7;
-        }
-        .quiz-opt-btn.wrong {
-            border-color: #ef4444; background: rgba(239, 68, 68, 0.2); color: #fca5a5;
-        }
-
-        /* Mission Accomplished Celebration Modal */
-        #victory-modal {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(6, 16, 36, 0.96); backdrop-filter: blur(20px);
-            border: 2px solid var(--accent-orange); border-radius: 14px;
-            padding: 26px 28px; width: 92%; max-width: 480px; text-align: center;
-            display: none; pointer-events: auto; z-index: 35;
-            box-shadow: 0 0 60px rgba(255, 107, 0, 0.45), 0 0 30px rgba(30, 136, 229, 0.35);
-        }
-        .victory-medal {
-            font-size: 52px; margin-bottom: 8px; display: block;
-            filter: drop-shadow(0 0 16px rgba(255, 145, 0, 0.8));
-        }
-        #victory-modal h2 { margin: 0 0 8px; font-size: 22px; color: #fff; font-weight: 800; }
-        #victory-modal p { margin: 0 0 18px; font-size: 14px; color: #cbd5e1; line-height: 1.6; }
-        .victory-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-
-        /* Bottom Targets Dock */
-        #targets-dock {
-            display: none; gap: 8px; align-self: center; flex-wrap: wrap;
-            justify-content: center; pointer-events: auto; z-index: 15;
-            background: var(--bg-panel); backdrop-filter: blur(12px);
-            border: 1px solid var(--border-blue); padding: 8px 14px; border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(6, 16, 36, 0.85);
-        }
-        .dock-btn {
-            background: rgba(10, 25, 54, 0.92); border: 1px solid var(--border-blue);
-            color: #e2e8f0; padding: 8px 14px; border-radius: 8px; font-size: 12.5px;
-            font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit;
-        }
-        .dock-btn:hover, .dock-btn.active {
-            border-color: var(--accent-orange); color: var(--accent-orange-bright);
-            background: rgba(255, 107, 0, 0.16);
-        }
-        .dock-btn.scanned {
-            border-color: var(--accent-emerald); color: #6ee7b7;
-        }
-
-        @media (max-width: 768px) {
-            .top-hud { flex-direction: column; align-items: center; }
-            .game-stats-box { width: 100%; justify-content: space-around; }
-            .mission-status-panel { width: 100%; }
-            #hardware-card, body.lang-en #hardware-card {
-                bottom: 76px; left: 4%; right: 4%; width: 92%; max-width: none;
-                max-height: 62vh; overflow-y: auto;
-            }
-        }
-    </style>
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
 </head>
 <body>
 
-    <div id="xp-toast" class="mono">+250 XP!</div>
+  <!-- 3D WebGL Canvas Container -->
+  <div id="canvas-container" class="fixed inset-0 z-0"></div>
 
-    <div id="target-reticle">
-        <span class="mono" id="reticle-code">SCAN TARGET // 01</span>
-        <strong id="reticle-name">Apollo 11</strong>
+  <!-- Subtle Aerospace Scanline Texture -->
+  <div class="fixed inset-0 pointer-events-none z-10 opacity-20 scanline-overlay"></div>
+
+  <!-- TOP HUD BAR -->
+  <header class="fixed top-0 inset-x-0 z-30 p-3 sm:p-4 pointer-events-none">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+
+      <!-- Left/Start: Mission Control Brand & Rank Badge -->
+      <div class="telemetry-panel rounded-2xl px-4 py-2.5 flex items-center gap-3 pointer-events-auto">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff6b00] to-[#ff9100] flex items-center justify-center shadow-lg shadow-orange-500/30 shrink-0">
+          <!-- Rocket SVG Icon -->
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs uppercase tracking-wider text-[#1e88e5] font-bold" data-i18n="agencyTag">NASA / DEEP SPACE TELEMETRY</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          </div>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span id="hud-rank" class="text-sm sm:text-base font-extrabold text-white">رائد فضاء مبتدئ</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-[#ff6b00]/20 border border-[#ff6b00]/50 text-[#ff9100] font-tech font-bold">
+              <span id="hud-xp">0</span> XP
+            </span>
+          </div>
+          <!-- Rank Progress Bar -->
+          <div class="w-36 sm:w-48 h-1.5 bg-[#061024] rounded-full overflow-hidden mt-1.5 border border-blue-500/30">
+            <div id="hud-rank-bar" class="h-full bg-gradient-to-r from-[#1e88e5] to-[#ff6b00] transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right/End: Controls (Discovery Log, Audio, Language Toggle, Back to Hub) -->
+      <div class="flex flex-wrap items-center gap-2 pointer-events-auto">
+        <!-- Artifact Collection Tracker Button -->
+        <button id="btn-open-log" class="telemetry-panel hover:border-[#ff6b00] transition rounded-xl px-3.5 py-2.5 flex items-center gap-2 text-sm font-bold text-white cursor-pointer">
+          <svg class="w-4 h-4 text-[#ff9100]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          <span data-i18n="logBtn">سجل الاكتشافات</span>
+          <span id="hud-discovered-count" class="px-1.5 py-0.5 text-xs rounded-md bg-[#1e88e5]/30 text-sky-300 font-tech">0/9</span>
+        </button>
+
+        <!-- Sound Toggle -->
+        <button id="btn-toggle-audio" class="telemetry-panel hover:border-[#1e88e5] transition rounded-xl p-2.5 text-sky-300 cursor-pointer" title="Toggle Audio">
+          <svg id="icon-audio-on" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          </svg>
+          <svg id="icon-audio-off" class="w-5 h-5 hidden text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+          </svg>
+        </button>
+
+        <!-- Bilingual Instant Toggle Button -->
+        <button id="btn-toggle-lang" class="telemetry-panel hover:border-[#ff6b00] transition rounded-xl px-3.5 py-2.5 text-sm font-bold text-[#ff9100] cursor-pointer">
+          🌐 English
+        </button>
+
+        <!-- Return to Command Hub Button (Shown during Launch & Exploration) -->
+        <button id="btn-return-hub" class="hidden bg-gradient-to-r from-[#ff6b00] to-[#ff9100] hover:brightness-110 transition rounded-xl px-3.5 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-orange-600/30 flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          <span data-i18n="hubBtn">مركز القيادة</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- PHASE 1: COMMAND HUB (MISSION SELECTION OVERLAY) -->
+  <main id="command-hub-screen" class="fixed inset-0 z-20 flex items-center justify-center p-4 pt-24 pb-6 overflow-y-auto bg-gradient-to-b from-[#061024]/65 via-[#061024]/45 to-[#061024]/85">
+    <div class="max-w-5xl w-full my-auto">
+      <div class="text-center mb-6 sm:mb-8">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#1e88e5]/20 border border-[#1e88e5]/50 text-sky-300 text-xs sm:text-sm font-bold mb-3">
+          <span class="w-2 h-2 rounded-full bg-[#ff6b00]"></span>
+          <span data-i18n="hubSubtitle">نظام الملاحة الفضائية التفاعلي ثلاثي الأبعاد</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg" data-i18n="hubTitle">
+          اختر وجهتك الاستكشافية في الكون
+        </h1>
+        <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto mt-2.5" data-i18n="hubDesc">
+          أطلق صاروخك المداري، اجمع كرات الطاقة أثناء الصعود، وافحص المركبات التاريخية والمسابير المتروكة باستخدام الماسح الراداري ثلاثي الأبعاد.
+        </p>
+      </div>
+
+      <!-- 3 Destination Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        <!-- Destination 1: MOON -->
+        <div class="telemetry-panel rounded-3xl p-5 sm:p-6 flex flex-col justify-between hover:border-[#ff6b00] transition-all duration-300 group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-tech font-bold px-2.5 py-1 rounded-lg bg-slate-700/60 text-slate-200 border border-slate-500/40">384,400 KM</span>
+              <span id="badge-moon-count" class="text-xs font-bold text-[#ff9100]">0/3 <span data-i18n="discoveredLabel">مكتشف</span></span>
+            </div>
+            <!-- Moon Icon Visual -->
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-300 to-slate-600 mb-4 flex items-center justify-center shadow-lg shadow-slate-400/20 group-hover:scale-105 transition">
+              <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-slate-500 via-slate-300 to-white relative overflow-hidden">
+                <span class="absolute w-3 h-3 rounded-full bg-slate-500/40 top-2 left-2"></span>
+                <span class="absolute w-2 h-2 rounded-full bg-slate-500/50 bottom-2 right-3"></span>
+                <span class="absolute w-2.5 h-2.5 rounded-full bg-slate-500/30 top-5 right-2"></span>
+              </div>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-white mb-1.5" data-i18n="moonTitle">سطح القمر</h2>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4" data-i18n="moonDesc">
+              استكشف مواقع هبوط بعثات أبولو التاريخية والعربات القمرية المتروكة في بحر السكون ووادي تاوروس ليترو.
+            </p>
+            <div class="space-y-1.5 mb-5 text-xs text-sky-200/90">
+              <div class="flex items-center gap-2"><span class="text-[#ff6b00]">◆</span> Apollo 11 Lunar Module (Eagle)</div>
+              <div class="flex items-center gap-2"><span class="text-[#ff6b00]">◆</span> Apollo 15 Lunar Roving Vehicle</div>
+              <div class="flex items-center gap-2"><span class="text-[#ff6b00]">◆</span> Apollo 17 Challenger Descent Stage</div>
+            </div>
+          </div>
+          <button onclick="startMission('moon')" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#1e88e5] to-[#0d47a1] hover:from-[#ff6b00] hover:to-[#ff9100] text-white font-extrabold text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer">
+            <span data-i18n="launchBtn">إطلاق المهمة</span>
+            <span>🚀</span>
+          </button>
+        </div>
+
+        <!-- Destination 2: MARS -->
+        <div class="telemetry-panel telemetry-orange-border rounded-3xl p-5 sm:p-6 flex flex-col justify-between hover:border-[#ff9100] transition-all duration-300 group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-tech font-bold px-2.5 py-1 rounded-lg bg-orange-950/70 text-orange-300 border border-orange-500/40">225M KM</span>
+              <span id="badge-mars-count" class="text-xs font-bold text-[#ff9100]">0/3 <span data-i18n="discoveredLabel">مكتشف</span></span>
+            </div>
+            <!-- Mars Icon Visual -->
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#ff6b00] to-red-900 mb-4 flex items-center justify-center shadow-lg shadow-orange-600/30 group-hover:scale-105 transition">
+              <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-red-900 via-[#d84315] to-[#ff9100] relative overflow-hidden">
+                <span class="absolute w-6 h-2 rounded-full bg-red-950/40 top-3 left-1"></span>
+                <span class="absolute w-4 h-1.5 rounded-full bg-white/70 top-0 left-3.5"></span>
+              </div>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-white mb-1.5" data-i18n="marsTitle">الكوكب الأحمر (المريخ)</h2>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4" data-i18n="marsDesc">
+              اهبط وسط الأخاديد الحمراء والسهول الصخرية لفحص أشهر الجوالات الروبوتية ومسبار فايكنغ التاريخي.
+            </p>
+            <div class="space-y-1.5 mb-5 text-xs text-orange-200/90">
+              <div class="flex items-center gap-2"><span class="text-[#1e88e5]">◆</span> Perseverance Rover & Ingenuity</div>
+              <div class="flex items-center gap-2"><span class="text-[#1e88e5]">◆</span> Curiosity Mars Science Lab</div>
+              <div class="flex items-center gap-2"><span class="text-[#1e88e5]">◆</span> Viking 1 Lander (1976)</div>
+            </div>
+          </div>
+          <button onclick="startMission('mars')" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#ff6b00] to-[#ff9100] hover:brightness-110 text-white font-extrabold text-sm transition-all shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2 cursor-pointer">
+            <span data-i18n="launchBtn">إطلاق المهمة</span>
+            <span>🚀</span>
+          </button>
+        </div>
+
+        <!-- Destination 3: DEEP SPACE -->
+        <div class="telemetry-panel rounded-3xl p-5 sm:p-6 flex flex-col justify-between hover:border-[#ff6b00] transition-all duration-300 group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-tech font-bold px-2.5 py-1 rounded-lg bg-indigo-950/70 text-sky-300 border border-sky-500/40">24B+ KM</span>
+              <span id="badge-deepspace-count" class="text-xs font-bold text-[#ff9100]">0/3 <span data-i18n="discoveredLabel">مكتشف</span></span>
+            </div>
+            <!-- Deep Space Icon Visual -->
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#1e88e5] to-indigo-950 mb-4 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-105 transition">
+              <svg class="w-9 h-9 text-sky-200" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-white mb-1.5" data-i18n="deepSpaceTitle">الفضاء العميق والمدارات</h2>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4" data-i18n="deepSpaceDesc">
+              حلق بين السدم والنجوم البعيدة لمعاينة أعظم التلسكوبات المدارية ومسبار فوياجر العابر للفضاء بين النجمي.
+            </p>
+            <div class="space-y-1.5 mb-5 text-xs text-sky-200/90">
+              <div class="flex items-center gap-2"><span class="text-[#ff6b00]">◆</span> Voyager 1 Interstellar Probe</div>
+              <div class="flex items-center gap-2"><span class="text-[#ff6b00]">◆</span> Hubble Space Telescope</div>
+              <div class="flex items-center gap-2"><span class="text-[#ff6b00]">◆</span> James Webb Space Telescope</div>
+            </div>
+          </div>
+          <button onclick="startMission('deepspace')" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#1e88e5] to-[#0d47a1] hover:from-[#ff6b00] hover:to-[#ff9100] text-white font-extrabold text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer">
+            <span data-i18n="launchBtn">إطلاق المهمة</span>
+            <span>🚀</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- PHASE 2: LAUNCH & ORBITAL ENERGY BOOST HUD -->
+  <section id="launch-hud" class="hidden fixed inset-x-0 bottom-0 z-20 p-4 sm:p-6 pointer-events-none">
+    <div class="max-w-3xl mx-auto flex flex-col items-center gap-4">
+
+      <!-- Minigame Instruction Banner -->
+      <div class="telemetry-panel telemetry-orange-border rounded-2xl px-5 py-3 text-center pointer-events-auto">
+        <div class="text-xs font-bold uppercase tracking-wider text-[#ff9100]" data-i18n="launchMinigameTitle">
+          ⚡ لعبة تعزيز الطاقة المدارية نشطة!
+        </div>
+        <div class="text-sm sm:text-base font-bold text-white mt-0.5" data-i18n="launchMinigameHint">
+          انقر على كرات الطاقة الزرقاء والبرتقالية المتوهجة حول الصاروخ لجمع +50 XP!
+        </div>
+      </div>
+
+      <!-- Timed QTE Action Buttons (Appear dynamically during ascent) -->
+      <div id="qte-container" class="flex flex-wrap justify-center gap-3 pointer-events-auto">
+        <button id="btn-qte-stage" class="hidden animate-pulse-orange bg-gradient-to-r from-[#ff6b00] to-[#ff9100] text-white font-extrabold px-6 py-3.5 rounded-2xl shadow-2xl border-2 border-white/40 text-sm sm:text-base flex items-center gap-2 cursor-pointer">
+          <span>🔥</span>
+          <span data-i18n="qteStageBtn">فصل المرحلة الأولى (+200 XP)</span>
+        </button>
+
+        <button id="btn-qte-burn" class="hidden animate-pulse-orange bg-gradient-to-r from-[#1e88e5] to-[#00b0ff] text-white font-extrabold px-6 py-3.5 rounded-2xl shadow-2xl border-2 border-white/40 text-sm sm:text-base flex items-center gap-2 cursor-pointer">
+          <span>🛰️</span>
+          <span data-i18n="qteBurnBtn">حرق تصحيح المسار (+200 XP)</span>
+        </button>
+      </div>
+
+      <!-- Live Telemetry Bar (Altitude, Velocity, Orbs Collected) -->
+      <div class="telemetry-panel rounded-2xl px-5 py-3 w-full grid grid-cols-3 gap-3 text-center">
+        <div>
+          <div class="text-[11px] text-sky-300 uppercase" data-i18n="altitudeLabel">الارتفاع</div>
+          <div class="font-tech text-base sm:text-xl font-bold text-white"><span id="telemetry-alt">0</span> KM</div>
+        </div>
+        <div>
+          <div class="text-[11px] text-sky-300 uppercase" data-i18n="velocityLabel">السرعة المدارية</div>
+          <div class="font-tech text-base sm:text-xl font-bold text-[#ff9100]"><span id="telemetry-vel">0</span> KM/H</div>
+        </div>
+        <div>
+          <div class="text-[11px] text-sky-300 uppercase" data-i18n="orbsCollectedLabel">طاقة مجمّعة</div>
+          <div class="font-tech text-base sm:text-xl font-bold text-emerald-400"><span id="telemetry-orbs">0</span> ORBS</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHASE 3: PLANETARY EXPLORATION HUD & ARTIFACT SELECTOR -->
+  <section id="exploration-hud" class="hidden fixed inset-0 z-20 pointer-events-none">
+    <!-- Top-Center Destination & Camera Reset Bar -->
+    <div class="fixed top-24 sm:top-20 inset-x-0 flex justify-center px-4 pointer-events-none">
+      <div class="telemetry-panel rounded-2xl px-4 py-2 flex items-center gap-3 pointer-events-auto">
+        <span id="explore-zone-title" class="text-sm sm:text-base font-extrabold text-white">سطح القمر</span>
+        <span class="text-slate-500">|</span>
+        <button id="btn-reset-camera" class="text-xs sm:text-sm font-bold text-sky-300 hover:text-[#ff9100] flex items-center gap-1.5 transition cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span data-i18n="resetCamBtn">إعادة ضبط الكاميرا</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Main HUD Layer -->
-    <div id="hud-layer">
-        <div class="top-hud">
-            <div class="hud-controls">
-                <button class="hud-btn mono" id="lang-btn" onclick="toggleLanguage()">EN / عربي</button>
-                <button class="hud-btn orange-btn" id="back-btn" style="display: none;">↩ العودة للقائمة الرئيسية</button>
-            </div>
+    <!-- Bottom Quick-Select Pills for the 3 Artifacts in Current Zone -->
+    <div id="zone-quick-bar" class="fixed bottom-4 inset-x-0 px-4 flex flex-col items-center gap-2 pointer-events-none">
+      <div class="text-xs text-sky-200 bg-[#061024]/80 px-3 py-1 rounded-full border border-blue-500/30" data-i18n="exploreHint">
+        اسحب للتدوير • قرّب بالعجلة • انقر على أي مركبة أو منارة متوهجة لفحصها
+      </div>
+      <div id="artifact-pills-container" class="flex flex-wrap justify-center gap-2 pointer-events-auto"></div>
+    </div>
 
-            <div class="mission-status-panel">
-                <span class="status-tag mono" id="status-tag">GAME // MISSION CONTROL</span>
-                <h1 id="phase-title">مغامرة استكشاف الفضاء 3D</h1>
-             
+    <!-- ARTIFACT TELEMETRY, DEEP 3D SCANNER & TRIVIA DRAWER -->
+    <aside id="artifact-panel" class="hidden fixed top-24 bottom-20 end-3 sm:end-5 w-[calc(100vw-1.5rem)] sm:w-[420px] telemetry-panel telemetry-orange-border rounded-3xl p-5 overflow-y-auto pointer-events-auto flex flex-col justify-between z-30">
+      <div>
+        <!-- Header & Close Button -->
+        <div class="flex items-start justify-between gap-2 pb-3 border-b border-blue-500/30">
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="art-year" class="text-xs font-tech font-bold px-2 py-0.5 rounded bg-[#1e88e5]/30 text-sky-300">1969</span>
+              <span id="art-status-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-slate-700/70 text-slate-300">غير ممسوح</span>
+            </div>
+            <h2 id="art-name" class="text-xl font-extrabold text-white mt-1.5">Apollo 11 Eagle</h2>
+            <p id="art-agency" class="text-xs text-[#ff9100] font-bold">NASA • Tranquility Base</p>
+          </div>
+          <button id="btn-close-artifact" class="p-2 rounded-xl bg-slate-800/80 hover:bg-red-500/30 text-slate-300 hover:text-white transition cursor-pointer">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Deep 3D Scanner Action Button -->
+        <div class="my-4">
+          <button id="btn-deep-scan" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#ff6b00] to-[#ff9100] hover:brightness-110 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2.5 transition cursor-pointer">
+            <svg class="w-5 h-5 animate-spin" style="animation-duration: 5s;" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+            </svg>
+            <span id="btn-deep-scan-text" data-i18n="deepScanBtn">مسح راداري ثلاثي الأبعاد (+250 XP)</span>
+          </button>
+        </div>
+
+        <!-- Historical Story & Telemetry Specs -->
+        <div class="space-y-3">
+          <div class="bg-[#061024]/80 rounded-2xl p-3.5 border border-blue-500/25">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs font-bold text-sky-300" data-i18n="missionLogLabel">سجل المهمة والقصة</span>
+              <button id="btn-replay-tts" class="text-xs text-[#ff9100] hover:underline flex items-center gap-1 cursor-pointer">
+                <span>🔊</span>
+                <span data-i18n="listenBtn">استماع</span>
+              </button>
+            </div>
+            <p id="art-story" class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+              ...
+            </p>
+          </div>
+
+          <!-- Technical Specs Grid -->
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="bg-[#061024]/70 rounded-xl p-2.5 border border-blue-500/20">
+              <div class="text-slate-400" data-i18n="specMassLabel">الكتلة / الوزن</div>
+              <div id="art-mass" class="font-bold text-white mt-0.5">15,103 kg</div>
+            </div>
+            <div class="bg-[#061024]/70 rounded-xl p-2.5 border border-blue-500/20">
+              <div class="text-slate-400" data-i18n="specStatusLabel">الحالة الحالية</div>
+              <div id="art-condition" class="font-bold text-emerald-400 mt-0.5">Historic Monument</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SPACE TRIVIA CHALLENGE (Unlocked after Deep Scan) -->
+        <div id="trivia-box" class="hidden mt-4 bg-gradient-to-br from-[#0a1936] to-[#061024] rounded-2xl p-4 border border-[#1e88e5]/50">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-extrabold text-[#ff9100] uppercase tracking-wider" data-i18n="triviaTitle">
+              🧠 تحدي الفضاء (+150 XP)
+            </span>
+            <span id="trivia-badge" class="text-[11px] font-bold text-sky-300"></span>
+          </div>
+          <p id="trivia-question" class="text-xs sm:text-sm font-bold text-white mb-3"></p>
+          <div id="trivia-options" class="space-y-2"></div>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ARTIFACT COLLECTION LOG MODAL -->
+  <div id="collection-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="telemetry-panel rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden">
+      <div class="p-5 border-b border-blue-500/30 flex items-center justify-between">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-white" data-i18n="logModalTitle">سجل الاكتشافات الفضائية (9/9)</h2>
+          <p class="text-xs sm:text-sm text-slate-300 mt-0.5" data-i18n="logModalSubtitle">امسح جميع المركبات التاريخية عبر القمر والمريخ والفضاء العميق للوصول إلى رتبة أسطورة كونية.</p>
+        </div>
+        <button id="btn-close-log" class="p-2.5 rounded-xl bg-slate-800 hover:bg-red-500/30 text-white cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div id="collection-grid" class="p-5 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+        <!-- Populated dynamically via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME LOGIC & 3D ENGINE -->
+  <script>
+    /**
+     * ============================================================================
+     * 1. BILINGUAL DICTIONARY & SCIENTIFIC ARTIFACT DATABASE (AR / EN)
+     * ============================================================================
+     */
+    let currentLang = 'ar';
+    let audioEnabled = true;
+
+    const I18N = {
+      ar: {
+        agencyTag: 'ناسا / قياس عن بُعد للفضاء العميق',
+        logBtn: 'سجل الاكتشافات',
+        hubBtn: 'مركز القيادة',
+        hubSubtitle: 'نظام الملاحة الفضائية التفاعلي ثلاثي الأبعاد',
+        hubTitle: 'اختر وجهتك الاستكشافية في الكون',
+        hubDesc: 'أطلق صاروخك المداري، اجمع كرات الطاقة أثناء الصعود، وافحص المركبات التاريخية والمسابير المتروكة باستخدام الماسح الراداري ثلاثي الأبعاد.',
+        discoveredLabel: 'مكتشف',
+        moonTitle: 'سطح القمر',
+        moonDesc: 'استكشف مواقع هبوط بعثات أبولو التاريخية والعربات القمرية المتروكة في بحر السكون ووادي تاوروس ليترو.',
+        marsTitle: 'الكوكب الأحمر (المريخ)',
+        marsDesc: 'اهبط وسط الأخاديد الحمراء والسهول الصخرية لفحص أشهر الجوالات الروبوتية ومسبار فايكنغ التاريخي.',
+        deepSpaceTitle: 'الفضاء العميق والمدارات',
+        deepSpaceDesc: 'حلق بين السدم والنجوم البعيدة لمعاينة أعظم التلسكوبات المدارية ومسبار فوياجر العابر للفضاء بين النجمي.',
+        launchBtn: 'إطلاق المهمة',
+        launchMinigameTitle: '⚡ لعبة تعزيز الطاقة المدارية نشطة!',
+        launchMinigameHint: 'انقر على كرات الطاقة الزرقاء والبرتقالية المتوهجة حول الصاروخ لجمع +50 XP!',
+        qteStageBtn: 'فصل المرحلة الأولى (+200 XP)',
+        qteBurnBtn: 'حرق تصحيح المسار (+200 XP)',
+        altitudeLabel: 'الارتفاع',
+        velocityLabel: 'السرعة المدارية',
+        orbsCollectedLabel: 'طاقة مجمّعة',
+        resetCamBtn: 'إعادة ضبط الكاميرا',
+        exploreHint: 'اسحب للتدوير • قرّب بالعجلة • انقر على أي مركبة أو منارة متوهجة لفحصها',
+        deepScanBtn: 'مسح راداري ثلاثي الأبعاد (+250 XP)',
+        deepScannedDone: 'تم المسح الراداري بنجاح ✓',
+        missionLogLabel: 'سجل المهمة والقصة',
+        listenBtn: 'استماع',
+        specMassLabel: 'الكتلة / الوزن',
+        specStatusLabel: 'الحالة الحالية',
+        triviaTitle: '🧠 تحدي الفضاء (+150 XP)',
+        triviaSolved: 'تمت الإجابة بنجاح ✓',
+        logModalTitle: 'سجل الاكتشافات الفضائية',
+        logModalSubtitle: 'امسح جميع المركبات التاريخية عبر القمر والمريخ والفضاء العميق للوصول إلى رتبة أسطورة كونية.',
+        statusScanned: 'مكتشف ✓',
+        statusUnscanned: 'بانتظار المسح',
+        zoneMoon: 'سطح القمر — بحر السكون',
+        zoneMars: 'سطح المريخ — فوهة جيزيرو',
+        zoneDeepSpace: 'الفضاء العميق — المدار النجمي',
+        jumpToBtn: 'انتقال للموقع'
+      },
+      en: {
+        agencyTag: 'NASA / DEEP SPACE TELEMETRY',
+        logBtn: 'Discovery Log',
+        hubBtn: 'Command Hub',
+        hubSubtitle: 'INTERACTIVE 3D AEROSPACE NAVIGATION SYSTEM',
+        hubTitle: 'Select Your Cosmic Destination',
+        hubDesc: 'Launch your orbital rocket, collect energy orbs during ascent, and inspect abandoned spacecraft & deep-space probes with the 3D Radar Scanner.',
+        discoveredLabel: 'Discovered',
+        moonTitle: 'Lunar Surface (Moon)',
+        moonDesc: 'Explore historic Apollo landing sites and abandoned lunar rovers across the Sea of Tranquility and Taurus-Littrow.',
+        marsTitle: 'The Red Planet (Mars)',
+        marsDesc: 'Touch down among crimson canyons and rocky plains to inspect iconic robotic rovers and the historic Viking 1 lander.',
+        deepSpaceTitle: 'Deep Space & Orbits',
+        deepSpaceDesc: 'Navigate glowing nebulae and starfields to examine humanity’s greatest space telescopes and Voyager 1.',
+        launchBtn: 'Launch Mission',
+        launchMinigameTitle: '⚡ ORBITAL ENERGY BOOST MINIGAME ACTIVE!',
+        launchMinigameHint: 'Click the glowing blue & orange energy orbs around the rocket for +50 XP!',
+        qteStageBtn: 'STAGE SEPARATION (+200 XP)',
+        qteBurnBtn: 'ORBITAL BURN (+200 XP)',
+        altitudeLabel: 'ALTITUDE',
+        velocityLabel: 'ORBITAL VELOCITY',
+        orbsCollectedLabel: 'ENERGY ORBS',
+        resetCamBtn: 'Reset Camera',
+        exploreHint: 'Drag to Orbit • Scroll to Zoom • Click any 3D spacecraft or glowing beacon to inspect',
+        deepScanBtn: 'DEEP 3D SCAN (+250 XP)',
+        deepScannedDone: '3D RADAR SCAN COMPLETE ✓',
+        missionLogLabel: 'Mission Story & Telemetry',
+        listenBtn: 'Narrate',
+        specMassLabel: 'Launch Mass',
+        specStatusLabel: 'Current Status',
+        triviaTitle: '🧠 SPACE TRIVIA CHALLENGE (+150 XP)',
+        triviaSolved: 'SOLVED ✓',
+        logModalTitle: 'Cosmic Artifact Collection Log',
+        logModalSubtitle: 'Scan all 9 historic spacecraft across the Moon, Mars, and Deep Space to achieve Cosmic Legend rank.',
+        statusScanned: 'DISCOVERED ✓',
+        statusUnscanned: 'UNSCANNED',
+        zoneMoon: 'Lunar Surface — Sea of Tranquility',
+        zoneMars: 'Martian Surface — Jezero Crater',
+        zoneDeepSpace: 'Deep Space — Interstellar Orbit',
+        jumpToBtn: 'Inspect'
+      }
+    };
+
+    const RANKS = [
+      { minXP: 0, ar: 'رائد فضاء مبتدئ', en: 'Space Cadet' },
+      { minXP: 400, ar: 'طيار مداري', en: 'Orbital Pilot' },
+      { minXP: 1000, ar: 'مستكشف كواكب', en: 'Planetary Explorer' },
+      { minXP: 1800, ar: 'قائد الفضاء العميق', en: 'Deep Space Commander' },
+      { minXP: 2600, ar: 'أسطورة كونية', en: 'Cosmic Legend' }
+    ];
+
+    const ARTIFACTS = [
+      // === MOON (3) ===
+      {
+        id: 'apollo11',
+        zone: 'moon',
+        year: '1969',
+        agency: 'NASA • Apollo 11',
+        pos: { x: -16, y: 0, z: 10 },
+        name: { ar: 'مركبة الهبوط أبولو 11 (إيغل)', en: 'Apollo 11 Lunar Module (Eagle)' },
+        mass: '15,103 kg',
+        condition: { ar: 'معلم تاريخي محفوظ على القمر', en: 'Preserved Lunar Monument' },
+        story: {
+          ar: 'في 20 يوليو 1969، هبطت مرحلة الهبوط الذهبية للمركبة إيغل في بحر السكون، حاملة نيل أرمسترونغ وباز ألدرين كأول بشر يخطون على سطح القمر. بقيت قاعدة الهبوط الذهبية في مكانها منذ ذلك الحين.',
+          en: 'On July 20, 1969, the gold-foiled descent stage of Eagle touched down in the Sea of Tranquility, carrying Neil Armstrong and Buzz Aldrin as the first humans to walk on the Moon. Its descent stage remains there today.'
+        },
+        trivia: {
+          q: {
+            ar: 'ما اسم المنطقة القمرية التي هبطت فيها مركبة أبولو 11؟',
+            en: 'What is the name of the lunar region where Apollo 11 landed?'
+          },
+          options: {
+            ar: ['بحر السكون', 'فوهة جيزيرو', 'جبل أوليمبوس'],
+            en: ['Sea of Tranquility', 'Jezero Crater', 'Olympus Mons']
+          },
+          answerIndex: 0
+        }
+      },
+      {
+        id: 'apollo15_rover',
+        zone: 'moon',
+        year: '1971',
+        agency: 'NASA • Apollo 15',
+        pos: { x: 14, y: 0, z: 12 },
+        name: { ar: 'العربة القمرية أبولو 15 (LRV)', en: 'Apollo 15 Lunar Roving Vehicle' },
+        mass: '210 kg',
+        condition: { ar: 'متوقفة قرب أخدود هادلي', en: 'Parked at Hadley Rille' },
+        story: {
+          ar: 'أول مركبة كهربائية يقودها البشر على جرم سماوي آخر غير الأرض! مكنت رواد فضاء أبولو 15 من قطع مسافة 27.9 كيلومتراً لاستكشاف جبال أبينين القمرية.',
+          en: 'The first electric vehicle driven by humans on another celestial body! It enabled Apollo 15 astronauts to traverse 27.9 km across the lunar Apennine foothills.'
+        },
+        trivia: {
+          q: {
+            ar: 'كيف كانت تعمل العربة القمرية LRV على سطح القمر؟',
+            en: 'How was the Lunar Roving Vehicle powered on the Moon?'
+          },
+          options: {
+            ar: ['بطاريات كهربائية غير قابلة لإعادة الشحن', 'وقود الديزل', 'طاقة الرياح القمرية'],
+            en: ['Non-rechargeable silver-zinc batteries', 'Diesel fuel', 'Lunar wind turbines']
+          },
+          answerIndex: 0
+        }
+      },
+      {
+        id: 'apollo17',
+        zone: 'moon',
+        year: '1972',
+        agency: 'NASA • Apollo 17',
+        pos: { x: 2, y: 0, z: -18 },
+        name: { ar: 'مركبة تشالنجر أبولو 17', en: 'Apollo 17 Challenger Descent Stage' },
+        mass: '16,448 kg',
+        condition: { ar: 'وادي تاوروس ليترو', en: 'Taurus-Littrow Valley' },
+        story: {
+          ar: 'آخر بعثة مأهولة تهبط على سطح القمر في القرن العشرين. أمضى الطاقم أكثر من 22 ساعة في السير على القمر وجمعوا 110 كيلوغرامات من الصخور القمرية النادرة.',
+          en: 'The final crewed mission to land on the Moon in the 20th century. The crew spent over 22 hours on moonwalks and returned 110 kg of priceless lunar samples.'
+        },
+        trivia: {
+          q: {
+            ar: 'في أي عام هبطت بعثة أبولو 17 على القمر؟',
+            en: 'In what year did Apollo 17 land on the Moon?'
+          },
+          options: {
+            ar: ['1972', '1965', '1984'],
+            en: ['1972', '1965', '1984']
+          },
+          answerIndex: 0
+        }
+      },
+
+      // === MARS (3) ===
+      {
+        id: 'perseverance',
+        zone: 'mars',
+        year: '2021',
+        agency: 'NASA / JPL • Mars 2020',
+        pos: { x: -15, y: 0, z: 11 },
+        name: { ar: 'الجوال بيرسيفيرانس ومروحية إنجينويتي', en: 'Perseverance Rover & Ingenuity' },
+        mass: '1,025 kg',
+        condition: { ar: 'نشط في فوهة جيزيرو', en: 'Active in Jezero Crater' },
+        story: {
+          ar: 'مختبر جيولوجي متطور يبحث عن آثار الحياة الميكروبية القديمة في بحيرة جيزيرو الجافة، ويجمع عينات صخرية لإعادتها إلى الأرض مستقبلاً، برفقة أول مروحية تطير في غلاف كوكب آخر.',
+          en: 'An advanced astrobiology rover searching for ancient microbial life in Jezero Crater and caching rock cores for future return to Earth, accompanied by the first aircraft to fly on another planet.'
+        },
+        trivia: {
+          q: {
+            ar: 'ما اسم المروحية الصغيرة التي رافقت بيرسيفيرانس على المريخ؟',
+            en: 'What is the name of the tiny helicopter that accompanied Perseverance?'
+          },
+          options: {
+            ar: ['إنجينويتي (Ingenuity)', 'سبوتنيك (Sputnik)', 'كاسيني (Cassini)'],
+            en: ['Ingenuity', 'Sputnik', 'Cassini']
+          },
+          answerIndex: 0
+        }
+      },
+      {
+        id: 'curiosity',
+        zone: 'mars',
+        year: '2012',
+        agency: 'NASA / JPL • MSL',
+        pos: { x: 15, y: 0, z: 10 },
+        name: { ar: 'مختبر علوم المريخ كيوريوسيتي', en: 'Curiosity Mars Rover' },
+        mass: '899 kg',
+        condition: { ar: 'يتسلق جبل شارب', en: 'Climbing Mount Sharp' },
+        story: {
+          ar: 'جوال يعمل بالطاقة النووية بحجم سيارة صغيرة، هبط داخل فوهة غيل وأثبت أن المريخ امتلك قديماً مياهاً عذبة وظروفاً صالحة لدعم الحياة الميكروبية.',
+          en: 'A car-sized nuclear-powered rover that landed in Gale Crater and proved ancient Mars once had liquid freshwater lakes and habitable conditions.'
+        },
+        trivia: {
+          q: {
+            ar: 'ما مصدر الطاقة الرئيسي الذي يشغّل الجوال كيوريوسيتي؟',
+            en: 'What is the primary power source for the Curiosity rover?'
+          },
+          options: {
+            ar: ['مولد حراري نظائري (بلوتونيوم)', 'ألواح شمسية فقط', 'بطاريات فحم'],
+            en: ['Radioisotope thermoelectric generator', 'Solar panels only', 'Coal batteries']
+          },
+          answerIndex: 0
+        }
+      },
+      {
+        id: 'viking1',
+        zone: 'mars',
+        year: '1976',
+        agency: 'NASA • Viking Program',
+        pos: { x: 0, y: 0, z: -17 },
+        name: { ar: 'مسبار الهبوط التاريخي فايكنغ 1', en: 'Viking 1 Mars Lander' },
+        mass: '572 kg',
+        condition: { ar: 'محطة توماس ماتش التذكارية', en: 'Thomas Mutch Memorial Station' },
+        story: {
+          ar: 'أول مركبة فضائية أمريكية تهبط بنجاح وتعمل على سطح المريخ عام 1976، وأرسلت أول صور بانورامية ملونة عالية الدقة لصحراء المريخ الحمراء.',
+          en: 'The first spacecraft to successfully land and operate on Mars in 1976, transmitting the very first clear color panoramic photographs from the Martian surface.'
+        },
+        trivia: {
+          q: {
+            ar: 'في أي عام نجح مسبار فايكنغ 1 بالهبوط على سطح المريخ؟',
+            en: 'In what year did Viking 1 successfully land on Mars?'
+          },
+          options: {
+            ar: ['1976', '1999', '1961'],
+            en: ['1976', '1999', '1961']
+          },
+          answerIndex: 0
+        }
+      },
+
+      // === DEEP SPACE (3) ===
+      {
+        id: 'voyager1',
+        zone: 'deepspace',
+        year: '1977',
+        agency: 'NASA / JPL • Interstellar',
+        pos: { x: -16, y: 2, z: 8 },
+        name: { ar: 'مسبار فوياجر 1 بين النجمي', en: 'Voyager 1 Interstellar Probe' },
+        mass: '722 kg',
+        condition: { ar: 'أبعد جسم من صنع الإنسان (24+ مليار كم)', en: 'Farthest Human-Made Object (24B+ km)' },
+        story: {
+          ar: 'انطلق عام 1977 لاستكشاف المشتري وزحل، ثم واصل رحلته ليصبح أول جسم من صنع البشر يعبر إلى الفضاء بين النجمي، حاملاً الأسطوانة الذهبية التي تروي قصة الأرض.',
+          en: 'Launched in 1977 to study Jupiter and Saturn, Voyager 1 became the first human-made object to enter interstellar space, carrying the Golden Record with sounds and images of Earth.'
+        },
+        trivia: {
+          q: {
+            ar: 'ماذا يحمل مسبار فوياجر 1 كرسالة للحضارات الفضائية المحتملة؟',
+            en: 'What does Voyager 1 carry as a message from humanity?'
+          },
+          options: {
+            ar: ['الأسطوانة الذهبية (Golden Record)', 'علم من الورق', 'خريطة ورقية'],
+            en: ['The Golden Record', 'A paper flag', 'A paper atlas']
+          },
+          answerIndex: 0
+        }
+      },
+      {
+        id: 'hubble',
+        zone: 'deepspace',
+        year: '1990',
+        agency: 'NASA / ESA • LEO',
+        pos: { x: 16, y: -2, z: 9 },
+        name: { ar: 'تلسكوب هابل الفضائي', en: 'Hubble Space Telescope' },
+        mass: '11,110 kg',
+        condition: { ar: 'يعمل في المدار الأرضي المنخفض', en: 'Operational in Low Earth Orbit' },
+        story: {
+          ar: 'أحد أعظم الأدوات العلمية في التاريخ؛ رصد الكون خارج تشويش الغلاف الجوي لأكثر من ثلاثة عقود، وساهم في تحديد عمر الكون واكتشاف الطاقة المظلمة.',
+          en: 'One of the greatest scientific instruments ever built; observing above Earth’s atmosphere for over three decades, helping determine the age of the universe.'
+        },
+        trivia: {
+          q: {
+            ar: 'لماذا يلتقط تلسكوب هابل صوراً أوضح بكثير من التلسكوبات الأرضية؟',
+            en: 'Why does Hubble capture far sharper images than ground telescopes?'
+          },
+          options: {
+            ar: ['لأنه يدور فوق الغلاف الجوي للأرض', 'لأنه يلامس النجوم', 'لأنه يعمل بالأشعة السينية فقط'],
+            en: ['It orbits above Earth’s distorting atmosphere', 'It touches the stars', 'It only uses X-rays']
+          },
+          answerIndex: 0
+        }
+      },
+      {
+        id: 'jwst',
+        zone: 'deepspace',
+        year: '2021',
+        agency: 'NASA / ESA / CSA • L2',
+        pos: { x: 0, y: 3, z: -15 },
+        name: { ar: 'تلسكوب جيمس ويب الفضائي (JWST)', en: 'James Webb Space Telescope' },
+        mass: '6,500 kg',
+        condition: { ar: 'نقطة لاغرانج L2 (1.5 مليون كم)', en: 'Sun-Earth L2 Orbit (1.5M km)' },
+        story: {
+          ar: 'أقوى مرصد فضائي بالأشعة تحت الحمراء بمرآته الذهبية السداسية العملاقة (6.5 متر)، مصمم لرؤية أولى المجرات التي تشكلت بعد الانفجار العظيم وتحليل أغلفة الكواكب الخارجية.',
+          en: 'The premier infrared space observatory featuring a 6.5-meter gold-coated segmented mirror, peering back to the earliest galaxies after the Big Bang.'
+        },
+        trivia: {
+          q: {
+            ar: 'بأي معدن ثمين طُليت مرآة تلسكوب جيمس ويب السداسية؟',
+            en: 'Which precious metal coats the hexagonal mirrors of James Webb?'
+          },
+          options: {
+            ar: ['الذهب الخالص', 'الحديد', 'البرونز'],
+            en: ['Pure Gold', 'Iron', 'Bronze']
+          },
+          answerIndex: 0
+        }
+      }
+    ];
+
+    /**
+     * ============================================================================
+     * 2. PROCEDURAL CLEAN AUDIO & WEB SPEECH API ENGINE (NO EXPLOSIONS)
+     * ============================================================================
+     */
+    class AerospaceAudio {
+      constructor() {
+        this.ctx = null;
+        this.thrusterNode = null;
+        this.thrusterGain = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioCtx();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      // Clean low-pass filtered rocket thruster rumble (smooth, non-harsh)
+      startThruster() {
+        if (!audioEnabled) return;
+        this.init();
+        this.stopThruster();
+
+        const bufferSize = this.ctx.sampleRate * 2;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          // Brown noise approximation for deep, smooth aerospace rumble
+          data[i] = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = data[i];
+          data[i] *= 2.5;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        noise.loop = true;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(140, this.ctx.currentTime);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.01, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.22, this.ctx.currentTime + 1.2);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        noise.start();
+        this.thrusterNode = noise;
+        this.thrusterGain = gain;
+      }
+
+      stopThruster() {
+        if (this.thrusterNode && this.thrusterGain && this.ctx) {
+          try {
+            this.thrusterGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.6);
+            const nodeToStop = this.thrusterNode;
+            setTimeout(() => {
+              try { nodeToStop.stop(); } catch (e) {}
+            }, 650);
+          } catch (e) {}
+        }
+        this.thrusterNode = null;
+        this.thrusterGain = null;
+      }
+
+      // Clean harmonic chime for collecting Orbital Energy Orbs
+      playOrbChime(combo = 1) {
+        if (!audioEnabled) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        const baseFreq = 523.25 * Math.pow(1.06, Math.min(combo, 10)); // C5 scaling up
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + 0.25);
+
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.36);
+      }
+
+      // Clean futuristic radar sweep tone
+      playRadarScan() {
+        if (!audioEnabled) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(280, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.7);
+        osc.frequency.exponentialRampToValueAtTime(440, now + 1.3);
+
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 1.45);
+      }
+
+      // Clean success chord for QTE / Trivia
+      playSuccessChord() {
+        if (!audioEnabled) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+          gain.gain.setValueAtTime(0.1, now + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.5);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.06);
+          osc.stop(now + idx * 0.06 + 0.55);
+        });
+      }
+
+      // Bilingual Web Speech API Narration
+      speak(text) {
+        if (!audioEnabled || !('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = currentLang === 'ar' ? 'ar-SA' : 'en-US';
+        utter.rate = 0.98;
+        utter.pitch = 1.0;
+        window.speechSynthesis.speak(utter);
+      }
+    }
+
+    const soundFX = new AerospaceAudio();
+
+    /**
+     * ============================================================================
+     * 3. GAME STATE & XP / RANK PROGRESSION SYSTEM
+     * ============================================================================
+     */
+    const gameState = {
+      xp: 0,
+      phase: 'hub', // 'hub' | 'launch' | 'explore'
+      currentZone: null, // 'moon' | 'mars' | 'deepspace'
+      discoveredIds: new Set(),
+      solvedTriviaIds: new Set(),
+      selectedArtifact: null,
+      orbsCollectedInLaunch: 0,
+      launchTimeline: null,
+      orbSpawnInterval: null
+    };
+
+    function addXP(amount, screenX = window.innerWidth / 2, screenY = window.innerHeight / 2) {
+      gameState.xp += amount;
+      updateHUD();
+
+      // Floating XP visual feedback
+      const toast = document.createElement('div');
+      toast.className = 'xp-toast font-tech font-extrabold text-lg sm:text-xl text-[#ff9100] drop-shadow-[0_2px_10px_rgba(255,107,0,0.8)]';
+      toast.style.left = `${screenX}px`;
+      toast.style.top = `${screenY}px`;
+      toast.textContent = `+${amount} XP`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 1450);
+    }
+
+    function getCurrentRank() {
+      let current = RANKS[0];
+      let next = RANKS[1];
+      for (let i = 0; i < RANKS.length; i++) {
+        if (gameState.xp >= RANKS[i].minXP) {
+          current = RANKS[i];
+          next = RANKS[i + 1] || null;
+        }
+      }
+      return { current, next };
+    }
+
+    function updateHUD() {
+      document.getElementById('hud-xp').textContent = gameState.xp;
+      const { current, next } = getCurrentRank();
+      document.getElementById('hud-rank').textContent = current[currentLang];
+
+      let pct = 100;
+      if (next) {
+        const range = next.minXP - current.minXP;
+        const progress = gameState.xp - current.minXP;
+        pct = Math.min(100, Math.max(5, (progress / range) * 100));
+      }
+      document.getElementById('hud-rank-bar').style.width = `${pct}%`;
+
+      // Discovered Counts
+      const totalDisc = gameState.discoveredIds.size;
+      document.getElementById('hud-discovered-count').textContent = `${totalDisc}/9`;
+
+      ['moon', 'mars', 'deepspace'].forEach(zone => {
+        const count = ARTIFACTS.filter(a => a.zone === zone && gameState.discoveredIds.has(a.id)).length;
+        const badgeEl = document.getElementById(`badge-${zone}-count`);
+        if (badgeEl) {
+          badgeEl.innerHTML = `${count}/3 <span data-i18n="discoveredLabel">${I18N[currentLang].discoveredLabel}</span>`;
+        }
+      });
+    }
+
+    /**
+     * ============================================================================
+     * 4. THREE.JS 3D SCENE, PROCEDURAL TEXTURES & DETAILED SPACECRAFT BUILDERS
+     * ============================================================================
+     */
+    let scene, camera, renderer, controls, raycaster, mouse;
+    let activeGroup = new THREE.Group();
+    let clickableObjects = []; // { mesh, type: 'orb' | 'artifact', data }
+    let animatedParticles = [];
+    let scanRingMesh = null;
+    let rocketParts = {};
+    const clock = new THREE.Clock();
+
+    function initThree() {
+      const container = document.getElementById('canvas-container');
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x061024, 0.0022);
+
+      camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 2000);
+      camera.position.set(0, 18, 42);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      container.appendChild(renderer.domElement);
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
+      controls.maxDistance = 120;
+      controls.minDistance = 5;
+
+      raycaster = new THREE.Raycaster();
+      mouse = new THREE.Vector2();
+
+      // Base Ambient & Directional Space Lighting
+      const ambientLight = new THREE.AmbientLight(0x4a78b5, 0.65);
+      scene.add(ambientLight);
+
+      const sunLight = new THREE.DirectionalLight(0xfff5e4, 1.45);
+      sunLight.position.set(60, 80, 40);
+      sunLight.castShadow = true;
+      scene.add(sunLight);
+
+      const rimLight = new THREE.DirectionalLight(0x1e88e5, 0.55);
+      rimLight.position.set(-50, 20, -60);
+      scene.add(rimLight);
+
+      // Persistent Deep Space Starfield
+      createStarfield();
+
+      scene.add(activeGroup);
+
+      // Build initial Command Hub orbital background
+      buildHubBackdrop();
+
+      // Events
+      window.addEventListener('resize', onWindowResize);
+      renderer.domElement.addEventListener('pointerdown', onCanvasPointerDown);
+    }
+
+    function createStarfield() {
+      const starGeo = new THREE.BufferGeometry();
+      const starCount = 3200;
+      const positions = new Float32Array(starCount * 3);
+      const colors = new Float32Array(starCount * 3);
+
+      for (let i = 0; i < starCount; i++) {
+        const r = 300 + Math.random() * 900;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+
+        positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        positions[i * 3 + 2] = r * Math.cos(phi);
+
+        // Subtle blue, white, and warm amber stars
+        const tint = Math.random();
+        if (tint > 0.85) {
+          colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.75; colors[i * 3 + 2] = 0.45;
+        } else if (tint > 0.45) {
+          colors[i * 3] = 0.75; colors[i * 3 + 1] = 0.88; colors[i * 3 + 2] = 1.0;
+        } else {
+          colors[i * 3] = 1.0; colors[i * 3 + 1] = 1.0; colors[i * 3 + 2] = 1.0;
+        }
+      }
+
+      starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      starGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      const starMat = new THREE.PointsMaterial({
+        size: 1.8,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.9
+      });
+      const stars = new THREE.Points(starGeo, starMat);
+      scene.add(stars);
+    }
+
+    // Procedural Canvas Texture Generator for Moon Craters & Mars Canyons
+    function createPlanetaryTexture(type) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+
+      if (type === 'moon') {
+        ctx.fillStyle = '#6c7582';
+        ctx.fillRect(0, 0, 512, 512);
+        // Dust noise
+        for (let i = 0; i < 6000; i++) {
+          const v = 90 + Math.floor(Math.random() * 65);
+          ctx.fillStyle = `rgb(${v},${v},${v + 5})`;
+          ctx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
+        }
+        // Craters
+        for (let c = 0; c < 45; c++) {
+          const x = Math.random() * 512;
+          const y = Math.random() * 512;
+          const r = 6 + Math.random() * 28;
+          const grad = ctx.createRadialGradient(x, y, r * 0.2, x, y, r);
+          grad.addColorStop(0, 'rgba(55, 60, 68, 0.85)');
+          grad.addColorStop(0.8, 'rgba(95, 102, 112, 0.6)');
+          grad.addColorStop(1, 'rgba(165, 175, 188, 0.5)');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (type === 'mars') {
+        ctx.fillStyle = '#b8431e';
+        ctx.fillRect(0, 0, 512, 512);
+        // Iron oxide bands & canyons
+        for (let i = 0; i < 6500; i++) {
+          const r = 155 + Math.floor(Math.random() * 75);
+          const g = 55 + Math.floor(Math.random() * 40);
+          const b = 25 + Math.floor(Math.random() * 20);
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          ctx.fillRect(Math.random() * 512, Math.random() * 512, 3, 2);
+        }
+        for (let c = 0; c < 30; c++) {
+          const x = Math.random() * 512;
+          const y = Math.random() * 512;
+          const r = 8 + Math.random() * 34;
+          ctx.fillStyle = 'rgba(92, 28, 12, 0.35)';
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(6, 6);
+      return tex;
+    }
+
+    function clearActiveScene() {
+      if (gameState.launchTimeline) {
+        gameState.launchTimeline.kill();
+        gameState.launchTimeline = null;
+      }
+      if (gameState.orbSpawnInterval) {
+        clearInterval(gameState.orbSpawnInterval);
+        gameState.orbSpawnInterval = null;
+      }
+      soundFX.stopThruster();
+
+      while (activeGroup.children.length > 0) {
+        activeGroup.remove(activeGroup.children[0]);
+      }
+      clickableObjects = [];
+      animatedParticles = [];
+      scanRingMesh = null;
+      rocketParts = {};
+    }
+
+    function buildHubBackdrop() {
+      clearActiveScene();
+      scene.fog = new THREE.FogExp2(0x061024, 0.002);
+      camera.position.set(0, 12, 36);
+      controls.target.set(0, 0, 0);
+
+      // Stylized Holographic Planet Earth below
+      const earthGeo = new THREE.SphereGeometry(14, 48, 48);
+      const earthMat = new THREE.MeshStandardMaterial({
+        color: 0x104a8e,
+        emissive: 0x061a3a,
+        roughness: 0.5,
+        metalness: 0.2
+      });
+      const earth = new THREE.Mesh(earthGeo, earthMat);
+      earth.position.set(0, -13, 0);
+      activeGroup.add(earth);
+
+      // Atmosphere Glow Ring
+      const atmoGeo = new THREE.SphereGeometry(14.5, 48, 48);
+      const atmoMat = new THREE.MeshBasicMaterial({
+        color: 0x1e88e5,
+        transparent: true,
+        opacity: 0.18,
+        side: THREE.BackSide
+      });
+      const atmo = new THREE.Mesh(atmoGeo, atmoMat);
+      atmo.position.copy(earth.position);
+      activeGroup.add(atmo);
+
+      // Orbital Telemetry Ring
+      const ringGeo = new THREE.TorusGeometry(19, 0.08, 16, 100);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0xff6b00, transparent: true, opacity: 0.55 });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = Math.PI / 2.4;
+      ring.position.set(0, -8, 0);
+      activeGroup.add(ring);
+
+      animatedParticles.push({
+        update: (dt) => {
+          earth.rotation.y += dt * 0.15;
+          ring.rotation.z += dt * 0.25;
+        }
+      });
+    }
+
+    /**
+     * ============================================================================
+     * 5. PHASE 2: MULTI-STAGE ROCKET LAUNCH & ORBITAL ENERGY BOOST MINIGAME
+     * ============================================================================
+     */
+    function startMission(zone) {
+      soundFX.init();
+      gameState.currentZone = zone;
+      gameState.phase = 'launch';
+      gameState.orbsCollectedInLaunch = 0;
+
+      // UI Transitions
+      document.getElementById('command-hub-screen').classList.add('hidden');
+      document.getElementById('exploration-hud').classList.add('hidden');
+      document.getElementById('artifact-panel').classList.add('hidden');
+      document.getElementById('launch-hud').classList.remove('hidden');
+      document.getElementById('btn-return-hub').classList.remove('hidden');
+      document.getElementById('btn-qte-stage').classList.add('hidden');
+      document.getElementById('btn-qte-burn').classList.add('hidden');
+      document.getElementById('telemetry-orbs').textContent = '0';
+
+      clearActiveScene();
+      scene.fog = new THREE.FogExp2(0x081736, 0.004);
+      controls.enabled = false;
+
+      // Launch Pad & Earth Horizon
+      const padGeo = new THREE.CylinderGeometry(18, 22, 2, 32);
+      const padMat = new THREE.MeshStandardMaterial({ color: 0x16294a, roughness: 0.7 });
+      const pad = new THREE.Mesh(padGeo, padMat);
+      pad.position.y = -1;
+      activeGroup.add(pad);
+
+      // Multi-stage Rocket Group
+      const rocket = new THREE.Group();
+      activeGroup.add(rocket);
+
+      // Stage 1 Booster
+      const stage1 = new THREE.Group();
+      const s1Body = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.1, 1.2, 8, 24),
+        new THREE.MeshStandardMaterial({ color: 0xf4f7fb, metalness: 0.3, roughness: 0.3 })
+      );
+      s1Body.position.y = 4;
+      stage1.add(s1Body);
+
+      // Orange Aerospace Stripe & Fins
+      const stripe = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.13, 1.13, 1.1, 24),
+        new THREE.MeshBasicMaterial({ color: 0xff6b00 })
+      );
+      stripe.position.y = 6.5;
+      stage1.add(stripe);
+
+      for (let i = 0; i < 4; i++) {
+        const fin = new THREE.Mesh(
+          new THREE.BoxGeometry(0.15, 2.2, 1.3),
+          new THREE.MeshStandardMaterial({ color: 0x0a1936 })
+        );
+        const angle = (i * Math.PI) / 2;
+        fin.position.set(Math.cos(angle) * 1.25, 1.2, Math.sin(angle) * 1.25);
+        fin.rotation.y = -angle;
+        stage1.add(fin);
+      }
+
+      // Main Thruster Flame (Dynamic Orange + Blue Core)
+      const flameOuter = new THREE.Mesh(
+        new THREE.ConeGeometry(1.15, 5.5, 20),
+        new THREE.MeshBasicMaterial({ color: 0xff6b00, transparent: true, opacity: 0.88 })
+      );
+      flameOuter.rotation.x = Math.PI;
+      flameOuter.position.y = -2.6;
+      stage1.add(flameOuter);
+
+      const flameCore = new THREE.Mesh(
+        new THREE.ConeGeometry(0.55, 3.4, 16),
+        new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.95 })
+      );
+      flameCore.rotation.x = Math.PI;
+      flameCore.position.y = -1.6;
+      stage1.add(flameCore);
+
+      rocket.add(stage1);
+
+      // Stage 2 Upper Spacecraft & Fairing
+      const stage2 = new THREE.Group();
+      const s2Body = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.95, 1.1, 4.5, 24),
+        new THREE.MeshStandardMaterial({ color: 0x0a1936, metalness: 0.5, roughness: 0.25 })
+      );
+      s2Body.position.y = 10.25;
+      stage2.add(s2Body);
+
+      const noseCone = new THREE.Mesh(
+        new THREE.ConeGeometry(0.95, 2.8, 24),
+        new THREE.MeshStandardMaterial({ color: 0xff6b00, metalness: 0.2, roughness: 0.3 })
+      );
+      noseCone.position.y = 13.9;
+      stage2.add(noseCone);
+
+      const s2Flame = new THREE.Mesh(
+        new THREE.ConeGeometry(0.75, 3.8, 16),
+        new THREE.MeshBasicMaterial({ color: 0x1e88e5, transparent: true, opacity: 0 })
+      );
+      s2Flame.rotation.x = Math.PI;
+      s2Flame.position.y = 6.2;
+      stage2.add(s2Flame);
+
+      rocket.add(stage2);
+      rocketParts = { rocket, stage1, stage2, flameOuter, flameCore, s2Flame, separated: false };
+
+      // Thruster Flicker Animation
+      animatedParticles.push({
+        update: (dt, elapsed) => {
+          const flicker = 0.88 + Math.sin(elapsed * 45) * 0.16;
+          flameOuter.scale.set(1, flicker, 1);
+          flameCore.scale.set(1, 0.9 + Math.cos(elapsed * 55) * 0.15, 1);
+          s2Flame.scale.set(1, flicker, 1);
+        }
+      });
+
+      // Start clean rocket rumble audio
+      soundFX.startThruster();
+
+      // Spawn Interactive Orbital Energy Orbs around ascending rocket
+      gameState.orbSpawnInterval = setInterval(() => {
+        if (gameState.phase !== 'launch') return;
+        spawnOrbitalEnergyOrb(rocket.position.y);
+      }, 950);
+
+      // 12-Second Camera-Tracked Launch Sequence via GSAP
+      const telemetryProxy = { alt: 0, vel: 0 };
+      const tl = gsap.timeline({
+        onUpdate: () => {
+          // Camera tracks the ascending rocket smoothly
+          camera.position.set(12, rocket.position.y + 7, 22);
+          camera.lookAt(0, rocket.position.y + 7, 0);
+
+          document.getElementById('telemetry-alt').textContent = Math.floor(telemetryProxy.alt);
+          document.getElementById('telemetry-vel').textContent = Math.floor(telemetryProxy.vel).toLocaleString();
+        },
+        onComplete: () => {
+          enterExplorationPhase(zone);
+        }
+      });
+
+      // Ascend from y=0 to y=190 over 12 seconds
+      tl.to(rocket.position, { y: 190, duration: 12, ease: 'power1.in' }, 0);
+      tl.to(telemetryProxy, { alt: 408, vel: 27600, duration: 12, ease: 'power1.in' }, 0);
+
+      // Timed QTE 1 at 3.2s: Stage Separation
+      tl.call(() => {
+        if (gameState.phase === 'launch') {
+          document.getElementById('btn-qte-stage').classList.remove('hidden');
+        }
+      }, null, 3.2);
+
+      // Timed QTE 2 at 7.2s: Orbital Burn
+      tl.call(() => {
+        if (gameState.phase === 'launch') {
+          document.getElementById('btn-qte-burn').classList.remove('hidden');
+        }
+      }, null, 7.2);
+
+      gameState.launchTimeline = tl;
+    }
+
+    function spawnOrbitalEnergyOrb(rocketY) {
+      const isOrange = Math.random() > 0.45;
+      const color = isOrange ? 0xff6b00 : 0x1e88e5;
+
+      const orbGroup = new THREE.Group();
+      const core = new THREE.Mesh(
+        new THREE.SphereGeometry(1.15, 16, 16),
+        new THREE.MeshBasicMaterial({ color })
+      );
+      const halo = new THREE.Mesh(
+        new THREE.SphereGeometry(1.85, 16, 16),
+        new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.32 })
+      );
+      orbGroup.add(core);
+      orbGroup.add(halo);
+
+      // Position within camera view ahead of rocket
+      const sideX = (Math.random() - 0.5) * 18;
+      const sideZ = (Math.random() - 0.5) * 10;
+      orbGroup.position.set(sideX, rocketY + 18 + Math.random() * 14, sideZ);
+
+      activeGroup.add(orbGroup);
+      clickableObjects.push({ mesh: core, parentGroup: orbGroup, type: 'orb', color });
+
+      animatedParticles.push({
+        update: (dt, elapsed) => {
+          if (orbGroup.parent) {
+            halo.scale.setScalar(1 + Math.sin(elapsed * 8) * 0.18);
+          }
+        }
+      });
+    }
+
+    function triggerStageSeparation(e) {
+      const btn = document.getElementById('btn-qte-stage');
+      btn.classList.add('hidden');
+      soundFX.playSuccessChord();
+      addXP(200, e.clientX, e.clientY);
+
+      if (rocketParts.stage1 && !rocketParts.separated) {
+        rocketParts.separated = true;
+        rocketParts.s2Flame.material.opacity = 0.92;
+        gsap.to(rocketParts.stage1.position, { y: '-=18', x: '-=6', duration: 2.5, ease: 'power2.in' });
+        gsap.to(rocketParts.stage1.rotation, { z: 0.6, duration: 2.5 });
+      }
+    }
+
+    function triggerOrbitalBurn(e) {
+      const btn = document.getElementById('btn-qte-burn');
+      btn.classList.add('hidden');
+      soundFX.playSuccessChord();
+      addXP(200, e.clientX, e.clientY);
+
+      if (rocketParts.s2Flame) {
+        rocketParts.s2Flame.material.color.setHex(0xff9100);
+        gsap.to(rocketParts.s2Flame.scale, { x: 1.6, y: 1.8, z: 1.6, duration: 0.5, yoyo: true, repeat: 3 });
+      }
+    }
+
+    /**
+     * ============================================================================
+     * 6. PHASE 3: 3D PLANETARY EXPLORATION & DETAILED SPACECRAFT MODELS
+     * ============================================================================
+     */
+    function enterExplorationPhase(zone) {
+      gameState.phase = 'explore';
+      gameState.currentZone = zone;
+
+      clearActiveScene();
+      controls.enabled = true;
+
+      document.getElementById('launch-hud').classList.add('hidden');
+      document.getElementById('exploration-hud').classList.remove('hidden');
+      document.getElementById('artifact-panel').classList.add('hidden');
+
+      updateZoneTitleUI();
+
+      // Build Planetary Terrain or Deep Space Nebula
+      if (zone === 'moon') {
+        scene.fog = new THREE.FogExp2(0x061024, 0.0045);
+        const moonTex = createPlanetaryTexture('moon');
+        const groundGeo = new THREE.PlaneGeometry(240, 240, 64, 64);
+        // Subtle crater hills
+        const posAttr = groundGeo.attributes.position;
+        for (let i = 0; i < posAttr.count; i++) {
+          const x = posAttr.getX(i);
+          const y = posAttr.getY(i);
+          const distCenter = Math.sqrt(x * x + y * y);
+          const height = Math.sin(x * 0.12) * Math.cos(y * 0.12) * 1.1 + (distCenter > 30 ? (distCenter - 30) * 0.08 : 0);
+          posAttr.setZ(i, height);
+        }
+        groundGeo.computeVertexNormals();
+
+        const groundMat = new THREE.MeshStandardMaterial({
+          map: moonTex,
+          bumpMap: moonTex,
+          bumpScale: 0.45,
+          roughness: 0.92,
+          metalness: 0.05
+        });
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        activeGroup.add(ground);
+
+        // Earth rising in the lunar sky
+        const earthSky = new THREE.Mesh(
+          new THREE.SphereGeometry(8, 32, 32),
+          new THREE.MeshBasicMaterial({ color: 0x1e88e5 })
+        );
+        earthSky.position.set(-45, 48, -95);
+        activeGroup.add(earthSky);
+
+      } else if (zone === 'mars') {
+        scene.fog = new THREE.FogExp2(0x260d08, 0.006);
+        const marsTex = createPlanetaryTexture('mars');
+        const groundGeo = new THREE.PlaneGeometry(240, 240, 64, 64);
+        const posAttr = groundGeo.attributes.position;
+        for (let i = 0; i < posAttr.count; i++) {
+          const x = posAttr.getX(i);
+          const y = posAttr.getY(i);
+          const distCenter = Math.sqrt(x * x + y * y);
+          const height = Math.cos(x * 0.1) * Math.sin(y * 0.14) * 1.4 + (distCenter > 32 ? (distCenter - 32) * 0.12 : 0);
+          posAttr.setZ(i, height);
+        }
+        groundGeo.computeVertexNormals();
+
+        const groundMat = new THREE.MeshStandardMaterial({
+          map: marsTex,
+          bumpMap: marsTex,
+          bumpScale: 0.6,
+          roughness: 0.88
+        });
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        activeGroup.add(ground);
+
+        // Scatter Martian Boulders
+        const rockMat = new THREE.MeshStandardMaterial({ color: 0x7c2d12, roughness: 0.9 });
+        for (let r = 0; r < 28; r++) {
+          const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.6 + Math.random() * 1.4, 0), rockMat);
+          const angle = Math.random() * Math.PI * 2;
+          const rad = 18 + Math.random() * 45;
+          rock.position.set(Math.cos(angle) * rad, 0.5, Math.sin(angle) * rad);
+          activeGroup.add(rock);
+        }
+
+      } else if (zone === 'deepspace') {
+        scene.fog = new THREE.FogExp2(0x061024, 0.0018);
+        // Glowing Nebula Clouds
+        const nebulaColors = [0x1e88e5, 0xff6b00, 0x3b82f6];
+        nebulaColors.forEach((col, idx) => {
+          const neb = new THREE.Mesh(
+            new THREE.SphereGeometry(35 + idx * 10, 24, 24),
+            new THREE.MeshBasicMaterial({
+              color: col,
+              transparent: true,
+              opacity: 0.06,
+              side: THREE.BackSide
+            })
+          );
+          neb.position.set((idx - 1) * 35, 10, -55);
+          activeGroup.add(neb);
+        });
+      }
+
+      // Build the 3 Interactive 3D Artifacts for this Zone
+      const zoneArtifacts = ARTIFACTS.filter(a => a.zone === zone);
+      const pillsContainer = document.getElementById('artifact-pills-container');
+      pillsContainer.innerHTML = '';
+
+      zoneArtifacts.forEach(art => {
+        const modelGroup = buildSpacecraft3DModel(art);
+        modelGroup.position.set(art.pos.x, art.pos.y, art.pos.z);
+        activeGroup.add(modelGroup);
+
+        // Glowing Telemetry Beacon above each artifact
+        const beaconRing = new THREE.Mesh(
+          new THREE.RingGeometry(1.6, 2.0, 32),
+          new THREE.MeshBasicMaterial({ color: 0xff6b00, side: THREE.DoubleSide, transparent: true, opacity: 0.85 })
+        );
+        beaconRing.rotation.x = -Math.PI / 2;
+        beaconRing.position.set(art.pos.x, art.pos.y + 0.15, art.pos.z);
+        activeGroup.add(beaconRing);
+
+        const beaconOrb = new THREE.Mesh(
+          new THREE.OctahedronGeometry(0.65, 0),
+          new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+        );
+        beaconOrb.position.set(art.pos.x, art.pos.y + 4.8, art.pos.z);
+        activeGroup.add(beaconOrb);
+
+        // Hitbox for easy clicking/tapping
+        const hitBox = new THREE.Mesh(
+          new THREE.SphereGeometry(4.2, 12, 12),
+          new THREE.MeshBasicMaterial({ visible: false })
+        );
+        hitBox.position.set(art.pos.x, art.pos.y + 2.0, art.pos.z);
+        activeGroup.add(hitBox);
+
+        clickableObjects.push({ mesh: hitBox, type: 'artifact', data: art });
+        clickableObjects.push({ mesh: beaconOrb, type: 'artifact', data: art });
+
+        animatedParticles.push({
+          update: (dt, elapsed) => {
+            beaconOrb.rotation.y += dt * 1.8;
+            beaconOrb.position.y = art.pos.y + 4.8 + Math.sin(elapsed * 3) * 0.35;
+            beaconRing.scale.setScalar(1 + Math.sin(elapsed * 4) * 0.12);
+            if (zone === 'deepspace') {
+              modelGroup.rotation.y += dt * 0.15;
+            }
+          }
+        });
+
+        // Quick-select pill button at bottom
+        const pill = document.createElement('button');
+        pill.className = 'telemetry-panel hover:border-[#ff6b00] transition px-3.5 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-2 cursor-pointer';
+        pill.innerHTML = `<span class="w-2 h-2 rounded-full ${gameState.discoveredIds.has(art.id) ? 'bg-emerald-400' : 'bg-[#ff6b00]'}"></span><span>${art.name[currentLang]}</span>`;
+        pill.onclick = () => selectArtifact(art);
+        pillsContainer.appendChild(pill);
+      });
+
+      resetExplorationCamera();
+    }
+
+    // Procedural Geometric 3D Models for all 9 Iconic Spacecraft
+    function buildSpacecraft3DModel(art) {
+      const g = new THREE.Group();
+      const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85, roughness: 0.25 });
+      const whiteMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, metalness: 0.25, roughness: 0.4 });
+      const darkMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.6, roughness: 0.4 });
+      const solarMat = new THREE.MeshStandardMaterial({ color: 0x0d47a1, emissive: 0x0a1936, metalness: 0.8, roughness: 0.2 });
+
+      if (art.id === 'apollo11' || art.id === 'apollo17') {
+        // Octagonal Gold Descent Stage + 4 Landing Struts
+        const base = new THREE.Mesh(new THREE.CylinderGeometry(2.1, 2.3, 1.8, 8), goldMat);
+        base.position.y = 1.6;
+        g.add(base);
+
+        const topHatch = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.3, 0.8, 8), darkMat);
+        topHatch.position.y = 2.8;
+        g.add(topHatch);
+
+        for (let i = 0; i < 4; i++) {
+          const angle = (i * Math.PI) / 2 + Math.PI / 4;
+          const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.5, 8), goldMat);
+          leg.position.set(Math.cos(angle) * 2.4, 1.1, Math.sin(angle) * 2.4);
+          leg.rotation.z = -Math.cos(angle) * 0.45;
+          leg.rotation.x = Math.sin(angle) * 0.45;
+          g.add(leg);
+
+          const footPad = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.65, 0.15, 16), goldMat);
+          footPad.position.set(Math.cos(angle) * 2.95, 0.1, Math.sin(angle) * 2.95);
+          g.add(footPad);
+        }
+      } else if (art.id === 'apollo15_rover') {
+        // Lunar Roving Vehicle (Chassis + 4 Wire Wheels + Dish Antenna)
+        const chassis = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.3, 3.4), whiteMat);
+        chassis.position.y = 0.85;
+        g.add(chassis);
+
+        [[-1.2, 1.2], [1.2, 1.2], [-1.2, -1.2], [1.2, -1.2]].forEach(([wx, wz]) => {
+          const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.35, 16), darkMat);
+          wheel.rotation.z = Math.PI / 2;
+          wheel.position.set(wx, 0.55, wz);
+          g.add(wheel);
+        });
+
+        const dish = new THREE.Mesh(new THREE.ConeGeometry(0.75, 0.45, 16, 1, true), goldMat);
+        dish.rotation.x = Math.PI * 0.75;
+        dish.position.set(0, 1.75, 1.1);
+        g.add(dish);
+
+      } else if (art.id === 'perseverance' || art.id === 'curiosity') {
+        // 6-Wheeled Mars Rover + Camera Mast
+        const body = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.9, 3.0), whiteMat);
+        body.position.y = 1.25;
+        g.add(body);
+
+        [-1.3, 1.3].forEach(wx => {
+          [-1.3, 0, 1.3].forEach(wz => {
+            const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.38, 16), darkMat);
+            wheel.rotation.z = Math.PI / 2;
+            wheel.position.set(wx, 0.45, wz);
+            g.add(wheel);
+          });
+        });
+
+        const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 1.4, 12), whiteMat);
+        mast.position.set(0.5, 2.2, 1.0);
+        g.add(mast);
+
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.35, 0.4), darkMat);
+        head.position.set(0.5, 2.9, 1.0);
+        g.add(head);
+
+      } else if (art.id === 'viking1') {
+        // Hexagonal Mars Lander + 3 Legs + Dish
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(1.7, 1.7, 0.85, 6), whiteMat);
+        body.position.y = 1.25;
+        g.add(body);
+
+        for (let i = 0; i < 3; i++) {
+          const angle = (i * Math.PI * 2) / 3;
+          const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.4, 8), darkMat);
+          leg.position.set(Math.cos(angle) * 1.7, 0.65, Math.sin(angle) * 1.7);
+          g.add(leg);
+        }
+        const dish = new THREE.Mesh(new THREE.SphereGeometry(0.75, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), whiteMat);
+        dish.rotation.x = Math.PI;
+        dish.position.set(0, 2.2, 0);
+        g.add(dish);
+
+      } else if (art.id === 'voyager1') {
+        // High-Gain Parabolic Dish + RTG Boom + Magnetometer Boom
+        const dish = new THREE.Mesh(new THREE.CylinderGeometry(2.1, 0.4, 0.7, 24, 1, true), whiteMat);
+        dish.rotation.x = Math.PI / 2;
+        g.add(dish);
+
+        const bus = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.7, 10), goldMat);
+        bus.rotation.x = Math.PI / 2;
+        bus.position.z = -0.5;
+        g.add(bus);
+
+        const boom = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 4.8, 8), darkMat);
+        boom.position.set(2.2, 1.2, -0.4);
+        boom.rotation.z = -0.9;
+        g.add(boom);
+
+      } else if (art.id === 'hubble') {
+        // Cylindrical Telescope Tube + Two Solar Wings
+        const tube = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 4.8, 24), whiteMat);
+        tube.rotation.z = Math.PI / 4;
+        g.add(tube);
+
+        const wing1 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.2, 4.2), solarMat);
+        wing1.position.set(0, 0, 2.8);
+        g.add(wing1);
+
+        const wing2 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.2, 4.2), solarMat);
+        wing2.position.set(0, 0, -2.8);
+        g.add(wing2);
+
+      } else if (art.id === 'jwst') {
+        // Iconic Gold Hexagonal Primary Mirror + 5-Layer Sunshield
+        const mirror = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 0.25, 6), goldMat);
+        mirror.rotation.x = Math.PI / 2;
+        mirror.position.y = 1.4;
+        g.add(mirror);
+
+        const shield = new THREE.Mesh(new THREE.BoxGeometry(4.4, 0.15, 6.2), whiteMat);
+        shield.position.y = -0.4;
+        g.add(shield);
+      }
+
+      return g;
+    }
+
+    function resetExplorationCamera() {
+      gsap.to(camera.position, { x: 0, y: 20, z: 36, duration: 1.1, ease: 'power2.out' });
+      gsap.to(controls.target, { x: 0, y: 1, z: 0, duration: 1.1, ease: 'power2.out' });
+    }
+
+    /**
+     * ============================================================================
+     * 7. ARTIFACT INSPECTION, DEEP 3D RADAR SCANNER & SPACE TRIVIA
+     * ============================================================================
+     */
+    function selectArtifact(art) {
+      gameState.selectedArtifact = art;
+
+      // Smooth GSAP Camera Zoom toward the chosen artifact
+      gsap.to(camera.position, {
+        x: art.pos.x + 6,
+        y: art.pos.y + 6.5,
+        z: art.pos.z + 9,
+        duration: 1.1,
+        ease: 'power2.inOut'
+      });
+      gsap.to(controls.target, {
+        x: art.pos.x,
+        y: art.pos.y + 1.5,
+        z: art.pos.z,
+        duration: 1.1,
+        ease: 'power2.inOut'
+      });
+
+      renderArtifactPanel();
+      document.getElementById('artifact-panel').classList.remove('hidden');
+    }
+
+    function renderArtifactPanel() {
+      const art = gameState.selectedArtifact;
+      if (!art) return;
+
+      const isScanned = gameState.discoveredIds.has(art.id);
+      const isTriviaSolved = gameState.solvedTriviaIds.has(art.id);
+
+      document.getElementById('art-year').textContent = art.year;
+      document.getElementById('art-name').textContent = art.name[currentLang];
+      document.getElementById('art-agency').textContent = art.agency;
+      document.getElementById('art-story').textContent = art.story[currentLang];
+      document.getElementById('art-mass').textContent = art.mass;
+      document.getElementById('art-condition').textContent = art.condition[currentLang];
+
+      const statusBadge = document.getElementById('art-status-badge');
+      const scanBtn = document.getElementById('btn-deep-scan');
+      const scanBtnText = document.getElementById('btn-deep-scan-text');
+
+      if (isScanned) {
+        statusBadge.textContent = I18N[currentLang].statusScanned;
+        statusBadge.className = 'text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+        scanBtnText.textContent = I18N[currentLang].deepScannedDone;
+        scanBtn.className = 'w-full py-3.5 px-4 rounded-2xl bg-emerald-600/30 border border-emerald-400/50 text-emerald-200 font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer';
+      } else {
+        statusBadge.textContent = I18N[currentLang].statusUnscanned;
+        statusBadge.className = 'text-xs font-bold px-2 py-0.5 rounded bg-slate-700/70 text-slate-300';
+        scanBtnText.textContent = I18N[currentLang].deepScanBtn;
+        scanBtn.className = 'w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#ff6b00] to-[#ff9100] hover:brightness-110 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2.5 transition cursor-pointer';
+      }
+
+      // Trivia Section (Unlocked once scanned)
+      const triviaBox = document.getElementById('trivia-box');
+      if (isScanned) {
+        triviaBox.classList.remove('hidden');
+        document.getElementById('trivia-question').textContent = art.trivia.q[currentLang];
+        document.getElementById('trivia-badge').textContent = isTriviaSolved ? I18N[currentLang].triviaSolved : '';
+
+        const optsContainer = document.getElementById('trivia-options');
+        optsContainer.innerHTML = '';
+
+        art.trivia.options[currentLang].forEach((optText, idx) => {
+          const btn = document.createElement('button');
+          const isCorrect = idx === art.trivia.answerIndex;
+          btn.textContent = optText;
+          btn.className = 'w-full text-start px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition cursor-pointer ';
+
+          if (isTriviaSolved) {
+            btn.disabled = true;
+            btn.className += isCorrect
+              ? 'bg-emerald-500/25 border-emerald-400 text-emerald-200'
+              : 'bg-slate-900/50 border-slate-700 text-slate-500';
+          } else {
+            btn.className += 'bg-[#061024]/90 border-blue-500/30 hover:border-[#ff6b00] text-slate-100';
+            btn.onclick = (ev) => handleTriviaAnswer(art, idx, btn, ev);
+          }
+          optsContainer.appendChild(btn);
+        });
+      } else {
+        triviaBox.classList.add('hidden');
+      }
+    }
+
+    function performDeep3DScan(e) {
+      const art = gameState.selectedArtifact;
+      if (!art) return;
+
+      soundFX.playRadarScan();
+      soundFX.speak(art.story[currentLang]);
+
+      // Animated 3D Holographic Cyan & Orange Scanning Ring over the Spacecraft
+      if (scanRingMesh) activeGroup.remove(scanRingMesh);
+      const ringGeo = new THREE.TorusGeometry(3.4, 0.14, 16, 64);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.95 });
+      scanRingMesh = new THREE.Mesh(ringGeo, ringMat);
+      scanRingMesh.rotation.x = Math.PI / 2;
+      scanRingMesh.position.set(art.pos.x, art.pos.y + 0.2, art.pos.z);
+      activeGroup.add(scanRingMesh);
+
+      gsap.to(scanRingMesh.position, {
+        y: art.pos.y + 5.2,
+        duration: 1.2,
+        yoyo: true,
+        repeat: 1,
+        ease: 'sine.inOut',
+        onComplete: () => {
+          if (scanRingMesh) {
+            activeGroup.remove(scanRingMesh);
+            scanRingMesh = null;
+          }
+        }
+      });
+
+      // Award +250 XP if newly discovered
+      if (!gameState.discoveredIds.has(art.id)) {
+        gameState.discoveredIds.add(art.id);
+        addXP(250, e.clientX, e.clientY);
+        updateHUD();
+        // Refresh bottom pills green indicator
+        enterExplorationPhase(gameState.currentZone);
+        selectArtifact(art);
+      } else {
+        renderArtifactPanel();
+      }
+    }
+
+    function handleTriviaAnswer(art, selectedIdx, btnEl, e) {
+      if (selectedIdx === art.trivia.answerIndex) {
+        gameState.solvedTriviaIds.add(art.id);
+        soundFX.playSuccessChord();
+        addXP(150, e.clientX, e.clientY);
+        renderArtifactPanel();
+      } else {
+        btnEl.classList.add('bg-red-500/30', 'border-red-500', 'text-red-200');
+      }
+    }
+
+    /**
+     * ============================================================================
+     * 8. RAYCASTING (CLICKING ORBS & 3D SPACECRAFT) & ANIMATION LOOP
+     * ============================================================================
+     */
+    function onCanvasPointerDown(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const targets = clickableObjects.map(o => o.mesh);
+      const intersects = raycaster.intersectObjects(targets, false);
+
+      if (intersects.length > 0) {
+        const hitMesh = intersects[0].object;
+        const found = clickableObjects.find(o => o.mesh === hitMesh);
+        if (!found) return;
+
+        if (found.type === 'orb' && gameState.phase === 'launch') {
+          // Collect Orbital Energy Orb!
+          gameState.orbsCollectedInLaunch += 1;
+          document.getElementById('telemetry-orbs').textContent = gameState.orbsCollectedInLaunch;
+          soundFX.playOrbChime(gameState.orbsCollectedInLaunch);
+          addXP(50, event.clientX, event.clientY);
+
+          // Particle burst effect
+          spawnCollectionBurst(found.parentGroup.position, found.color);
+          activeGroup.remove(found.parentGroup);
+          clickableObjects = clickableObjects.filter(o => o !== found);
+        } else if (found.type === 'artifact' && gameState.phase === 'explore') {
+          selectArtifact(found.data);
+        }
+      }
+    }
+
+    function spawnCollectionBurst(pos, color) {
+      for (let i = 0; i < 12; i++) {
+        const p = new THREE.Mesh(
+          new THREE.SphereGeometry(0.25, 8, 8),
+          new THREE.MeshBasicMaterial({ color })
+        );
+        p.position.copy(pos);
+        activeGroup.add(p);
+
+        const dest = {
+          x: pos.x + (Math.random() - 0.5) * 9,
+          y: pos.y + (Math.random() - 0.5) * 9,
+          z: pos.z + (Math.random() - 0.5) * 9
+        };
+        gsap.to(p.position, {
+          x: dest.x,
+          y: dest.y,
+          z: dest.z,
+          duration: 0.65,
+          ease: 'power2.out',
+          onComplete: () => activeGroup.remove(p)
+        });
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
+
+      animatedParticles.forEach(item => item.update(dt, elapsed));
+
+      if (controls && controls.enabled) {
+        controls.update();
+      }
+      renderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    /**
+     * ============================================================================
+     * 9. BILINGUAL UI TOGGLE & COLLECTION LOG MODAL CONTROLS
+     * ============================================================================
+     */
+    function updateZoneTitleUI() {
+      const titleEl = document.getElementById('explore-zone-title');
+      if (gameState.currentZone === 'moon') titleEl.textContent = I18N[currentLang].zoneMoon;
+      if (gameState.currentZone === 'mars') titleEl.textContent = I18N[currentLang].zoneMars;
+      if (gameState.currentZone === 'deepspace') titleEl.textContent = I18N[currentLang].zoneDeepSpace;
+    }
+
+    function applyLanguage() {
+      const htmlEl = document.documentElement;
+      htmlEl.lang = currentLang;
+      htmlEl.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+
+      document.getElementById('btn-toggle-lang').textContent =
+        currentLang === 'ar' ? '🌐 English' : '🌐 عربي';
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (I18N[currentLang][key]) {
+          el.textContent = I18N[currentLang][key];
+        }
+      });
+
+      updateHUD();
+      updateZoneTitleUI();
+
+      if (gameState.phase === 'explore' && gameState.currentZone) {
+        // Refresh bottom pills text
+        const zoneArtifacts = ARTIFACTS.filter(a => a.zone === gameState.currentZone);
+        const pillsContainer = document.getElementById('artifact-pills-container');
+        pillsContainer.innerHTML = '';
+        zoneArtifacts.forEach(art => {
+          const pill = document.createElement('button');
+          pill.className = 'telemetry-panel hover:border-[#ff6b00] transition px-3.5 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-2 cursor-pointer';
+          pill.innerHTML = `<span class="w-2 h-2 rounded-full ${gameState.discoveredIds.has(art.id) ? 'bg-emerald-400' : 'bg-[#ff6b00]'}"></span><span>${art.name[currentLang]}</span>`;
+          pill.onclick = () => selectArtifact(art);
+          pillsContainer.appendChild(pill);
+        });
+      }
+
+      if (gameState.selectedArtifact) {
+        renderArtifactPanel();
+      }
+      renderCollectionLog();
+    }
+
+    function renderCollectionLog() {
+      const grid = document.getElementById('collection-grid');
+      grid.innerHTML = '';
+
+      ARTIFACTS.forEach(art => {
+        const discovered = gameState.discoveredIds.has(art.id);
+        const card = document.createElement('div');
+        card.className = `rounded-2xl p-4 border transition flex flex-col justify-between ${
+          discovered
+            ? 'bg-[#0a1936]/90 border-emerald-500/50'
+            : 'bg-[#061024]/80 border-blue-500/20 opacity-85'
+        }`;
+
+        const zoneBadge =
+          art.zone === 'moon' ? '🌙 Moon' : art.zone === 'mars' ? '🔴 Mars' : '🌌 Deep Space';
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="px-2 py-0.5 rounded bg-slate-800 text-sky-300 font-bold">${zoneBadge}</span>
+              <span class="font-bold ${discovered ? 'text-emerald-400' : 'text-slate-400'}">
+                ${discovered ? I18N[currentLang].statusScanned : I18N[currentLang].statusUnscanned}
+              </span>
+            </div>
+            <h3 class="text-sm sm:text-base font-extrabold text-white">${art.name[currentLang]}</h3>
+            <p class="text-xs text-[#ff9100] font-bold mt-0.5">${art.agency} (${art.year})</p>
+            <p class="text-xs text-slate-300 mt-2 line-clamp-3">${art.story[currentLang]}</p>
+          </div>
+          <button class="mt-3 w-full py-2 rounded-xl bg-[#1e88e5]/30 hover:bg-[#ff6b00] text-white text-xs font-bold transition cursor-pointer">
+            ${I18N[currentLang].jumpToBtn} →
+          </button>
+        `;
+
+        card.querySelector('button').onclick = () => {
+          document.getElementById('collection-modal').classList.add('hidden');
+          document.getElementById('command-hub-screen').classList.add('hidden');
+          document.getElementById('btn-return-hub').classList.remove('hidden');
+          enterExplorationPhase(art.zone);
+          selectArtifact(art);
+        };
+
+        grid.appendChild(card);
+      });
+    }
+
+    function returnToCommandHub() {
+      gameState.phase = 'hub';
+      gameState.selectedArtifact = null;
+      window.speechSynthesis && window.speechSynthesis.cancel();
+
+      document.getElementById('launch-hud').classList.add('hidden');
+      document.getElementById('exploration-hud').classList.add('hidden');
+      document.getElementById('artifact-panel').classList.add('hidden');
+      document.getElementById('btn-return-hub').classList.add('hidden');
+      document.getElementById('command-hub-screen').classList.remove('hidden');
+
+      controls.enabled = true;
+      buildHubBackdrop();
+      updateHUD();
+    }
+
+    // Bind UI Event Listeners on Window Load
+    window.onload = function () {
+      initThree();
+      applyLanguage();
+      animate();
+
+      document.getElementById('btn-toggle-lang').addEventListener('click', () => {
+        currentLang = currentLang === 'ar' ? 'en' : 'ar';
+        applyLanguage();
+      });
+
+      document.getElementById('btn-toggle-audio').addEventListener('click', () => {
+        audioEnabled = !audioEnabled;
+        document.getElementById('icon-audio-on').classList.toggle('hidden', !audioEnabled);
+        document.getElementById('icon-audio-off').classList.toggle('hidden', audioEnabled);
+        if (!audioEnabled) {
+          soundFX.stopThruster();
+          window.speechSynthesis && window.speechSynthesis.cancel();
+        }
+      });
+
+      document.getElementById('btn-return-hub').addEventListener('click', returnToCommandHub);
+      document.getElementById('btn-qte-stage').addEventListener('click', triggerStageSeparation);
+      document.getElementById('btn-qte-burn').addEventListener('click', triggerOrbitalBurn);
+      document.getElementById('btn-reset-camera').addEventListener('click', resetExplorationCamera);
+
+      document.getElementById('btn-close-artifact').addEventListener('click', () => {
+        document.getElementById('artifact-panel').classList.add('hidden');
+        gameState.selectedArtifact = null;
+      });
+
+      document.getElementById('btn-deep-scan').addEventListener('click', performDeep3DScan);
+      document.getElementById('btn-replay-tts').addEventListener('click', () => {
+        if (gameState.selectedArtifact) {
+          soundFX.speak(gameState.selectedArtifact.story[currentLang]);
+        }
+      });
+
+      document.getElementById('btn-open-log').addEventListener('click', () => {
+        renderCollectionLog();
+        document.getElementById('collection-modal').classList.remove('hidden');
+      });
+
+      document.getElementById('btn-close-log').addEventListener('click', () => {
+        document.getElementById('collection-modal').classList.add('hidden');
+      });
+    };
+  </script>
+</body>
+</html>
