@@ -18,8 +18,8 @@
             --border-blue: rgba(30, 136, 229, 0.35);
             --accent-blue: #1e88e5;
             --accent-blue-bright: #38bdf8;
-            --accent-orange: #ff6b00;
-            --accent-orange-bright: #ff9100;
+            --accent-orange: #ffc857;
+            --accent-orange-bright: #daa53c;
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
         }
@@ -306,8 +306,6 @@
             width:100%;
             height:100%;
             margin:6px;
-            
-
         }
         
         /* زر إعادة فتح البوكس في حال إغلاقه */
@@ -350,6 +348,7 @@
         .box-header h2 {
             font-size: 16px;
             font-weight: normal;
+            margin: 0;
         }
         .close-box-btn {
             background: #e74c3c;
@@ -583,54 +582,15 @@
         </div>
     </div>
     
-     <!-- زر لإعادة إظهار بوكس المعرض عند إغلاقه 
-     <button id="openGalleryBtn" class="open-gallery-btn " onclick="toggleGalleryBox(true)">شاهد صور للمركبة</button>
-     -->
-     <!-- البوكس الصغير للمعرض -->
-     <div id="galleryBox" class="gallery-box ">
+     <!-- البوكس الصغير للمعرض (يتم تحديث الصور ديناميكياً من JSON) -->
+     <div id="galleryBox" class="gallery-box">
          <div class="box-header">
-             <h2>شاهد صور للمركبة</h2>
+             <h2 id="galleryBoxTitle">شاهد صور للمركبة</h2>
              <button class="close-box-btn" onclick="toggleGalleryBox(false)">إغلاق ✕</button>
          </div>
  
-         <div class="mini-grid">
-             <div class="mini-item" onclick="openZoom('images/apollo1.jpg' , 'image1')">
-                 <img src="images/apollo1.jpg" alt="صورة 1">
-             </div>
-             <div class="mini-item" onclick="openZoom('images/apollo2.jpg' , 'image2')">
-                 <img src="images/apollo2.jpg" alt="صورة 2">
-             </div>
-             <div class="mini-item" onclick="openZoom('images/apollo3.jpg' , 'image3')">
-                 <img src="images/apollo3.jpg" alt="صورة 3">
-             </div>
-             <div class="mini-item" onclick="openZoom('images/apollo4.jpg' , 'image4')">
-                 <img src="images/apollo4.jpg" alt="صورة 4">
-             </div>
-         </div>
-
+         <div class="mini-grid" id="galleryGrid"></div>
      </div>
-
-      <!-- البوكس الصغير للمعرض -->
-      <div id="galleryBox" class="gallery-box ">
-        <div class="box-header">
-            <h2>شاهد صور للمركبة</h2>
-            <button class="close-box-btn" onclick="toggleGalleryBox(false)">إغلاق ✕</button>
-            <div class="mini-grid2">
-                <div class="mini-item" onclick="openZoom('images/serg1.jpg' , 'image1')">
-                    <img src="images/seg1.jpg" alt="صورة 1">
-                </div>
-                <div class="mini-item" onclick="openZoom('images/seg2.jpg' , 'image2')">
-                    <img src="images/seg2.jpg" alt="صورة 2">
-                </div>
-                <div class="mini-item" onclick="openZoom('images/seg3.jpg' , 'image3')">
-                    <img src="images/seg3.jpg" alt="صورة 3">
-                </div>
-                <div class="mini-item" onclick="openZoom('images/seg4.jpg' , 'image4')">
-                    <img src="images/seg4.jpg" alt="صورة 4">
-                </div>
-            </div>
-        </div>
-    </div>
  
      <!-- نافذة تكبير الصورة عند الضغط عليها -->
      <div id="lightbox" class="lightbox" onclick="closeZoom()">
@@ -640,22 +600,6 @@
              <p id="zoomCaption" class="caption"></p>
          </div>
      </div>
-
-    <!--<div id="galleryBox">
-        <div class="card-btns">
-            <button class="icon-btn close" id="close-card-btn" title="Close / إغلاق">✕</button>
-        </div>
-        <div id="images">
-            <div class="images-cell">
-                <img src="images/apollo1.jpg">
-                <img src="images/apollo2.jpg">
-            </div>
-            <div class="images-cell">
-                <img src="images/apollo3.jpg">
-                <img src="images/apollo4.jpg">
-            </div>
-        </div>
-    </div>-->
 
     <!-- المكتبات البرمجية -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -801,6 +745,8 @@
                 lblVel: "السرعة",
                 lblStage: "المرحلة",
                 resetOrbit: "نظرة مدارية شاملة",
+                galleryTitle: "شاهد صور للمركبة",
+                galleryClose: "إغلاق ✕",
                 countSub: "تسلسل إشعال المحركات الرئيسية",
                 liftoffText: "انطلاق!",
                 countSpeech: ["ثلاثة", "اثنان", "واحد", "إشعال المحركات وانطلاق الصاروخ نحو الفضاء!"],
@@ -813,8 +759,7 @@
                     mars: {
                         title: "كوكب المريخ (Mars)",
                         desc: "العبور إلى الكوكب الأحمر لاستكشاف فوهة جيزيرو وفوهة غيل حيث تستقر مركبات بيرسيفيرانس وكيريوسيتي وفايكنغ 1."
-                    },
-                    
+                    }
                 },
                 transit: {
                     moon: {
@@ -828,8 +773,7 @@
                         title: "تتبع رحلة الصاروخ نحو المريخ",
                         desc: "الكاميرا تتابع الصاروخ في مسار العبور بين الكواكب نحو الكوكب الأحمر...",
                         stageSep: "انفصال المرحلة الأولى واندفاع المركبة نحو مدار المريخ..."
-                    },
-         
+                    }
                 },
                 destinations: {
                     moon: {
@@ -847,8 +791,7 @@
                                 lat: 0.674, lon: 23.473,
                                 desc: "مرحبًا! أنا مركبة الهبوط القمرية النسر (Apollo 11 Lunar Module Eagle)، انطلقت في رحلتي التاريخية لأصبح أول مركبة مأهولة تهبط على سطح القمر. وصلت إليه في 20 يوليو 1969، وهبطت في منطقة تُسمّى «بحر السكون»، وعلى متني رائدا الفضاء نيل أرمسترونغ وباز ألدرين.بعد هبوطي، ساعدت في تحقيق حلم البشرية بالوصول إلى سطح القمر، وأصبحت جزءًا من أول مهمة تنجح في إنزال روّاد فضاء عليه. وعندما انتهت مهمتي، بقي الجزء السفلي مني على سطح القمر، ليكون أول أثر بشري هناك.كما تركت خلفي أجهزة علمية تُسمّى (EASEP)، ساعدت العلماء على دراسة الزلازل القمرية وقياس المسافات باستخدام عاكسات الليزر. ورغم أن رحلتي انتهت منذ سنوات طويلة، فإن اسمي ما زال حاضرًا بوصفه جزءًا من واحدة من أعظم اللحظات في تاريخ البشرية!",
                                 images: ["images/apollo1.jpg","images/apollo2.jpg","images/apollo3.jpg","images/apollo4.jpg"]
-                            },
-                            
+                            }
                         ]
                     },
                     mars: {
@@ -857,7 +800,6 @@
                         desc: "انقر على مؤشرات الهبوط فوق تضاريس المريخ الحقيقية لفحص الروبوتات المستكشفة",
                         arrivalSpeech: "تم الاستقرار في مدار كوكب المريخ. اختر أحد مواقع الهبوط لاستكشاف الروبوتات الفضائية على الكوكب الأحمر.",
                         sites: [
-                            
                             {
                                 short: "سوجورنر روفر",
                                 name: "سوجورنر روفر",
@@ -866,12 +808,10 @@
                                 spec2: "23 pounds (10.6 kilograms)",
                                 lat: -5.4, lon: 137.8,
                                 desc: "قصة سوجورنر على كوكب المريختدور أحداث هذه القصة في صيف عام 1997، عندما قرر العلماء إرسال رحلة ذكية ومثيرة إلى الكوكب الأحمر.. المريخ!الرحلة لم تكن عادية، فقد حملت مركبة هبوط ضخمة تُسمى «مارس باثفايندر»، وبداخلها أصغر وأشجع عربة روبوتية في التاريخ تُدعى «سوجورنر» بعجلاتها الست الصغيرات.هبوط الملاهي المجنون!هل تتخيل كيف هبطت هذه المركبة على المريخ؟ لم تستخدم مكابح عادية، بل انتفخت حولها وسائد هوائية ضخمة في اللحظة الأخيرة! وعندما اصطدمت بسطح الكوكب، ظلت ترتد وتطفز أكثر من 15 مرة في الهواء مثل كرة مطاطية ضخمة، حتى استقرت أخيرًا بهدوء في مكان صخري يُسمى «أريس فاليس».الخروج إلى العالم الأحمر في اليوم التالي للهبوط، انفتح الباب الخلفي للمركبة، وامتد منحدر طويل نحو الأرض. وهنا ظهرت بطلتنا «سوجورنر»، وتدحرجت بعجلاتها الست لتطأ رمال المريخ الحمراء لأول مرة!كان المفروض أن تعمل سوجورنر لمدة 7 أيام فقط وتتوقف، لكنها أثبتت أنها عربة ذكية للغاية فاستمرت تعمل وتبدع لمدة 83 يومًا كاملة!ماذا فعلت هناك؟صوّرت كل شيء: التقطت مئات الصور المذهلة لتضاريس المريخ وغباره وصخوره.فحصت الصخور: استخدمت أجهزتها الدقيقة لتحليل مكونات التربة، وأثبتت أن المريخ كان يحتوي على ماء وأنهار جارية في الماضي البعيد.راقبت الطقس: سجلت حركة الرياح، والدوامات الغبارية التي تتراقص على الرمال، وحتى السحب الجليدية البيضاء في الصباح.عندما توقفت آخر إشارة من سوجورنر، كانت قد أثبتت للعالم أن الآلات الصغيرة يمكنها أن تقوم بمغامرات عظيمة، وتغير نظرتنا إلى الفضاء إلى الأبد!",
-                                images: ["images/serg1.jpg","images/serg2.jpg","images/serg3.jpg","images/serg4.jpg"]
-                            },
-                            
+                                images: ["images/serg1.jpg","images/serg2.gif","images/serg3.jpg","images/serg4.jpg"]
+                            }
                         ]
-                    },
-                    
+                    }
                 }
             },
             en: {
@@ -884,6 +824,8 @@
                 lblVel: "VELOCITY",
                 lblStage: "STAGE",
                 resetOrbit: "Full Orbital View",
+                galleryTitle: "Vehicle Image Gallery",
+                galleryClose: "Close ✕",
                 countSub: "MAIN ENGINE START SEQUENCE",
                 liftoffText: "LIFTOFF!",
                 countSpeech: ["Three", "Two", "One", "Main engine ignition and liftoff!"],
@@ -896,8 +838,7 @@
                     mars: {
                         title: "Mars (The Red Planet)",
                         desc: "Interplanetary transfer to Mars to examine Jezero and Gale Craters where Perseverance, Curiosity, and Viking 1 rest."
-                    },
-                   
+                    }
                 },
                 transit: {
                     moon: {
@@ -911,8 +852,7 @@
                         title: "Tracking Rocket Flight to Mars",
                         desc: "Camera following spacecraft trajectory across interplanetary space to Mars...",
                         stageSep: "Booster separation complete. Cruising toward the Red Planet..."
-                    },
-                   
+                    }
                 },
                 destinations: {
                     moon: {
@@ -928,10 +868,9 @@
                                 spec1: "NASA // July 20, 1969",
                                 spec2: "Gold Kapton Descent Stage",
                                 lat: 0.674, lon: 23.473,
-                                desc: "The octagonal lower descent stage of Lunar Module Eagle, wrapped in gold Kapton thermal foil. It remains standing on its four landing legs at Tranquility Base.",
+                                desc: "Hello! I am the lunar module Eagle (Apollo 11 Lunar Module Eagle). I began my historic journey to become the first crewed spacecraft to land on the Moon. I arrived on July 20, 1969, and landed in an area called the Sea of Tranquility, carrying two astronauts on board: Neil Armstrong and Buzz Aldrin. After landing, I helped make humanity's dream of reaching the Moon come true. I became part of the first successful mission to land astronauts on its surface. When my mission was over, my lower section remained on the Moon, becoming one of the very first human-made objects left behind there. I also left behind scientific instruments known as EASEP (Early Apollo Scientific Experiments Package), which helped scientists study moonquakes and measure distances using laser reflectors. Although my journey ended many years ago, my name is still remembered as part of one of the greatest moments in human history!",
                                 images: ["images/apollo1.jpg","images/apollo2.jpg","images/apollo3.jpg","images/apollo4.jpg"]
-                            },
-                           
+                            }
                         ]
                     },
                     mars: {
@@ -940,7 +879,6 @@
                         desc: "Click any landing beacon on the Martian terrain to inspect NASA rovers",
                         arrivalSpeech: "Mars orbit achieved. Select any landing site reticle to inspect robotic explorers on the Red Planet.",
                         sites: [
-                           
                             {
                                 short: "Sojourner Rover",
                                 name: "Robotic Rover",
@@ -948,15 +886,47 @@
                                 spec1: "NASA JPL // 2012",
                                 spec2: "Nuclear Rover & Skycrane Site",
                                 lat: -5.4, lon: 137.8,
-                                desc: "A car-sized nuclear-powered chemistry laboratory climbing Mount Sharp, while its supersonic parachute and sky-crane descent stage rest nearby.",
-                                images: ["images/serg1.jpg","images/serg2.jpg","images/serg3.jpg","images/serg4.jpg"]
-                            },
-                            
+                                desc: "Our story takes place in the summer of 1997, when scientists decided to send a smart and exciting explorer on a journey to the Red Planet... Mars!\\n\\nThis was no ordinary mission! A giant lander called Mars Pathfinder carried inside it the smallest and bravest robotic rover in history, named Sojourner, with its six tiny wheels.\\n\\nA Crazy Bouncy Landing!\\n\\nCan you imagine how this spacecraft landed on Mars? It didn't use ordinary brakes. Instead, huge airbags inflated around it at the very last moment!\\n\\nWhen it hit the planet's surface, it bounced and tumbled more than 15 times, just like a giant rubber ball, before finally coming to rest in a rocky area called Ares Vallis.\\n\\nRolling Out into the Red World\\n\\nThe day after landing, the back door of the spacecraft opened, and a long ramp stretched down toward the ground.\\n\\nAnd there she was! Our little hero, Sojourner, rolled down the ramp on her six wheels and touched the red Martian soil for the very first time!\\n\\nSojourner was only expected to work for 7 days before shutting down, but she turned out to be an amazing little rover! She kept exploring and working for 83 whole days!\\n\\nWhat Did She Do There?\\n\\nShe took pictures: She captured hundreds of amazing photos of Mars, its landscapes, dust, and rocks.\\n\\nShe examined rocks: She used her special scientific instruments to analyze the soil and rocks, helping scientists learn more about Mars and discover evidence of water flowing there in the distant past.\\n\\nShe watched the weather: She recorded the movement of winds, dust devils dancing across the sandy surface, and even white icy clouds in the morning sky.\\n\\nWhen Sojourner's final signal was received, she had already proved something extraordinary to the world: even the smallest machines can go on the greatest adventures and change the way we see the universe forever!",
+                                images: ["images/serg1.jpg","images/serg2.gif","images/serg3.jpg","images/serg4.jpg"]
+                            }
                         ]
-                    },
+                    }
                 }
             }
         };
+
+        // دالة تحديث معرض الصور ديناميكياً من JSON الخاص بالمركبة
+        function renderGalleryImages(site) {
+            const galleryBox = document.getElementById('galleryBox');
+            const galleryGrid = document.getElementById('galleryGrid');
+            const galleryTitle = document.getElementById('galleryBoxTitle');
+            const closeBtn = galleryBox.querySelector('.close-box-btn');
+
+            if (!site || !Array.isArray(site.images) || site.images.length === 0) {
+                galleryBox.style.display = 'none';
+                return;
+            }
+
+            if (galleryTitle) galleryTitle.innerText = CONTENT[lang].galleryTitle;
+            if (closeBtn) closeBtn.innerText = CONTENT[lang].galleryClose;
+
+            galleryGrid.innerHTML = '';
+            site.images.forEach((imgSrc, i) => {
+                const item = document.createElement('div');
+                item.className = 'mini-item';
+                const captionText = `${site.name} - ${i + 1}`;
+                item.onclick = () => openZoom(imgSrc, captionText);
+
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.alt = captionText;
+
+                item.appendChild(img);
+                galleryGrid.appendChild(item);
+            });
+
+            galleryBox.style.display = 'block';
+        }
 
         const synth = window.speechSynthesis;
         function speak(text) {
@@ -991,8 +961,11 @@
             document.getElementById('brief-moon-desc').innerText = t.briefings.moon.desc;
             document.getElementById('brief-mars-title').innerText = t.briefings.mars.title;
             document.getElementById('brief-mars-desc').innerText = t.briefings.mars.desc;
-            document.getElementById('brief-space-title').innerText = t.briefings.space.title;
-            document.getElementById('brief-space-desc').innerText = t.briefings.space.desc;
+
+            const spaceTitleEl = document.getElementById('brief-space-title');
+            const spaceDescEl = document.getElementById('brief-space-desc');
+            if (spaceTitleEl && t.briefings.space) spaceTitleEl.innerText = t.briefings.space.title;
+            if (spaceDescEl && t.briefings.space) spaceDescEl.innerText = t.briefings.space.desc;
 
             if (currentPhase === 'select') {
                 document.getElementById('status-tag').innerText = t.statusReady;
@@ -1022,6 +995,7 @@
                     document.getElementById('hardware-desc').innerText = s.desc;
                     document.getElementById('spec1-val').innerText = s.spec1;
                     document.getElementById('spec2-val').innerText = s.spec2;
+                    renderGalleryImages(s);
                     speak(s.name + ". " + s.desc);
                 }
             }
@@ -1959,7 +1933,7 @@
 
         window.addEventListener('pointerdown', (e) => {
             if (currentPhase !== 'explore') return;
-            if (e.target.tagName === 'BUTTON' || e.target.closest('#hardware-card') || e.target.closest('#targets-dock')) return;
+            if (e.target.tagName === 'BUTTON' || e.target.closest('#hardware-card') || e.target.closest('#targets-dock') || e.target.closest('#galleryBox')) return;
 
             mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -1990,7 +1964,9 @@
             document.getElementById('spec1-val').innerText = site.spec1;
             document.getElementById('spec2-val').innerText = site.spec2;
             document.getElementById('hardware-card').style.display = 'block';
-            document.getElementById('galleryBox').style.display = 'block';
+            
+            // تحديث وعرض الصور الخاصة بالمركبة من JSON
+            renderGalleryImages(site);
 
             speak(site.name + ". " + site.desc);
 
@@ -2119,11 +2095,11 @@
         const openBtn = document.getElementById('openGalleryBtn');
         
         if (show) {
-            box.style.display = 'block';
-            openBtn.style.display = 'none';
+            if (box) box.style.display = 'block';
+            if (openBtn) openBtn.style.display = 'none';
         } else {
-            box.style.display = 'none';
-            openBtn.style.display = 'inline-block';
+            if (box) box.style.display = 'none';
+            if (openBtn) openBtn.style.display = 'inline-block';
         }
     }
 
