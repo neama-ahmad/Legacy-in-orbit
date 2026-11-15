@@ -3,71 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إرث | Legacy - استكشاف الفضاء</title>
+    <title>إرث | Legacy in Orbit - استكشاف الفضاء</title>
+    
     <!-- استيراد Tailwind CSS للتنسيق المتجاوب -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- استيراد خطوط برمجية (Monospace) تدعم العربية والإنجليزية بدقة عالية -->
+    
+    <!-- استيراد خطوط برمجية (Monospace / Code Fonts) تدعم العربية والإنجليزية بدقة -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* إعدادات الخطوط والألوان الأساسية */
+        /* إعدادات الخطوط البرمجية والألوان الأساسية */
         :root {
-            --bg-space: #1c2136;
+            --bg-space: #060913;
+            --bg-nebula: #1c2136;
             --accent-cyan: #38bdf8;
             --accent-amber: #e69201;
-            --terminal-green: #10b981;
+        }
+
+        * {
+            font-family: 'IBM Plex Mono', 'Handjet', 'IBM Plex Sans Arabic', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         }
 
         body {
-            background-color: var(--bg-space);
-            color: #e69201;
-            /* دمج خط IBM Plex Mono للإنجليزية و IBM Plex Sans Arabic مع لمسة برمجية للعربية */
-            font-family: 'IBM Plex Mono', 'IBM Plex Sans Arabic', monospace;
+            background: radial-gradient(circle at 50% 45%, var(--bg-nebula) 0%, var(--bg-space) 72%, #03050c 100%);
+            color: #f8fafc;
             overflow-x: hidden;
             margin: 0;
             padding: 0;
             min-height: 100vh;
+            letter-spacing: 0.01em;
         }
 
-        .typewriter{
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width:100%;
-            height: 150px;
+        /* ضبط حجم خط Handjet للنصوص العربية ليبدو كخط كود حاد وواضح */
+        html[lang="ar"] body {
+            font-family: 'IBM Plex Mono', 'Handjet', 'IBM Plex Sans Arabic', monospace;
         }
-        .typewriter p{
-  overflow: hidden;
-  border-left:  .15em solid #90c6db;
-  white-space:wrap;
-  letter-spacing:  .10em;
-  font-size: 34px;
-  animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
-}
-
-
-@keyframes typing{
-  from {width: 0}
-  to { width: 100%}
-}
-
-@keyframes blink-caret {
-from, to {border-color: transparent}
-50% {border-color: #90c6db}
-}
 
         /* تأثير المؤشر البرمجي الوامض */
         .terminal-cursor {
             display: inline-block;
-            width: 0.65em;
-            height: 1.15em;
-            background-color: #e69201;
+            width: 0.55em;
+            height: 1.1em;
+            background-color: var(--accent-amber);
             vertical-align: middle;
-            margin-inline-start: 4px;
-            box-shadow: 0 0 10px #38bdf8;
+            margin-inline-start: 6px;
+            box-shadow: 0 0 12px rgba(230, 146, 1, 0.85), 0 0 22px rgba(56, 189, 248, 0.4);
             animation: blink 0.75s step-end infinite;
         }
 
@@ -76,12 +58,12 @@ from, to {border-color: transparent}
             50% { opacity: 0; }
         }
 
-        /* تأثير التوهج للزر الفضائي */
+        /* زر الانطلاق الفضائي */
         .space-btn {
             position: relative;
-            background: rgba(14, 165, 233, 0.1);
-            border: 1px solid rgba(56, 189, 248, 0.5);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.15), inset 0 0 12px rgba(56, 189, 248, 0.1);
+            background: linear-gradient(135deg, rgba(230, 146, 1, 0.14) 0%, rgba(14, 165, 233, 0.12) 100%);
+            border: 1.5px solid rgba(230, 146, 1, 0.8);
+            box-shadow: 0 0 25px rgba(230, 146, 1, 0.2), inset 0 0 14px rgba(230, 146, 1, 0.1);
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             overflow: hidden;
         }
@@ -93,7 +75,7 @@ from, to {border-color: transparent}
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.35), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
             transition: left 0.6s ease;
         }
 
@@ -102,9 +84,9 @@ from, to {border-color: transparent}
         }
 
         .space-btn:hover {
-            background: rgba(56, 189, 248, 0.22);
+            background: linear-gradient(135deg, rgba(230, 146, 1, 0.26) 0%, rgba(56, 189, 248, 0.22) 100%);
             border-color: #38bdf8;
-            box-shadow: 0 0 35px rgba(56, 189, 248, 0.45), inset 0 0 20px rgba(56, 189, 248, 0.25);
+            box-shadow: 0 0 35px rgba(56, 189, 248, 0.42), inset 0 0 18px rgba(230, 146, 1, 0.2);
             transform: translateY(-2px);
         }
 
@@ -112,26 +94,26 @@ from, to {border-color: transparent}
             transform: translateY(0);
         }
 
-        /* خطوط المسح الضوئي الخفيفة لإضفاء طابع شاشات الفضاء */
+        /* خطوط المسح الضوئي الخفيفة لشاشات التيرمينال */
         .scanlines {
             background: linear-gradient(
                 to bottom,
                 rgba(255, 255, 255, 0),
                 rgba(255, 255, 255, 0) 50%,
-                rgba(0, 0, 0, 0.25) 50%,
-                rgba(0, 0, 0, 0.25)
+                rgba(0, 0, 0, 0.26) 50%,
+                rgba(0, 0, 0, 0.26)
             );
             background-size: 100% 4px;
             pointer-events: none;
         }
 
         /* توهج ناعم للنصوص */
-        .text-glow {
-            text-shadow: 0 0 18px rgba(226, 232, 240, 0.25);
+        .amber-glow {
+            text-shadow: 0 0 22px rgba(230, 146, 1, 0.32);
         }
 
         .cyan-glow {
-            text-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+            text-shadow: 0 0 15px rgba(56, 189, 248, 0.45);
         }
 
         /* شريط التمرير المخصص */
@@ -139,154 +121,101 @@ from, to {border-color: transparent}
             width: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #020308;
+            background: #03050c;
         }
         ::-webkit-scrollbar-thumb {
             background: #1e293b;
             border-radius: 3px;
         }
-        .buttons{
-            display:flex;
-            flex-direction: column;
-            align-items: center;
-            width: 50%;
-          
-        }
-
-        .buttons .button{
-    padding: 14px;
-    width: 60%;
-    text-align: center;
-    border: 2px solid #e69201;
-    border-radius: 5px;
-    font-size: 22px;
-    cursor: pointer;
-}
-.buttons .button:hover{
-  background-color: none;
-  border:1px solid #fff;
-  color:#ffff;
-  
-}
     </style>
 </head>
-<body class="relative flex flex-col justify-between min-h-screen selection:bg-sky-500/30 selection:text-sky-200">
-<!-- لوحة رسم النجوم المتحركة في الخلفية -->
-<canvas id="starfield" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+<body class="relative flex flex-col justify-between min-h-screen selection:bg-amber-500/30 selection:text-amber-200">
 
-<!-- طبقة تأثير خطوط المسح الشفافة -->
-<div class="fixed inset-0 scanlines z-0 opacity-40"></div>
+    <!-- لوحة رسم النجوم المتحركة في الخلفية -->
+    <canvas id="starfield" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
 
-<!-- الشريط العلوي (Header) -->
-<header class="relative z-20 w-full max-w-6xl mx-auto px-5 sm:px-8 pt-6 pb-4 flex items-center justify-between">
-    <!-- شعار المشروع مع مؤشر حالة النظام -->
-    <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg border border-sky-500/40 bg-orange-950/30 flex items-center justify-center shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-            <!-- أيقونة مدار / قمر صناعي SVG -->
-            <svg class="w-5 h-5 text-orange-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="12" cy="12" r="3" />
-                <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)" />
-                <circle cx="18.5" cy="7.5" r="1.2" fill="currentColor" />
+    <!-- طبقة تأثير خطوط المسح الشفافة -->
+    <div class="fixed inset-0 scanlines z-0 opacity-35"></div>
+
+    <!-- الشريط العلوي (Header): الشعار فقط على جهة وزر اللغة على الجهة المقابلة -->
+    <header class="relative z-20 w-full max-w-6xl mx-auto px-4 sm:px-8 pt-6 pb-4 flex items-center justify-between gap-4">
+        <!-- شعار المشروع -->
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl border border-amber-500/45 bg-amber-500/10 flex items-center justify-center shadow-[0_0_18px_rgba(230,146,1,0.2)] shrink-0">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-[#e69201]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="12" r="3" />
+                    <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)" />
+                    <circle cx="18.5" cy="7.5" r="1.3" fill="currentColor" />
+                </svg>
+            </div>
+            <span id="brand-name" class="text-base sm:text-xl font-bold tracking-wider text-white cyan-glow">Legacy in Orbit</span>
+        </div>
+
+        <!-- زر تبديل اللغة (العربية / English) -->
+        <button 
+            id="lang-toggle" 
+            type="button"
+            aria-label="Switch Language"
+            class="group flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-700/80 bg-slate-900/70 hover:border-sky-400/60 hover:bg-slate-800/90 text-xs sm:text-sm font-medium text-slate-200 transition-all duration-300 backdrop-blur-md cursor-pointer shadow-lg">
+            <svg class="w-4 h-4 text-sky-400 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
             </svg>
+            <span id="lang-label">English</span>
+        </button>
+    </header>
+
+    <!-- المحتوى الرئيسي في منتصف الشاشة -->
+    <main class="relative z-10 flex-grow flex flex-col items-center justify-center px-4 sm:px-8 py-12 max-w-4xl mx-auto w-full text-center">
+        
+        <!-- حاوية النص الترحيبي بخط الكود وتأثير الكتابة -->
+        <div class="w-full max-w-3xl min-h-[120px] sm:min-h-[140px] md:min-h-[160px] flex items-center justify-center px-2 mb-10 sm:mb-12">
+            <h1 id="hero-heading" class="text-2xl sm:text-3xl md:text-4xl font-semibold leading-relaxed sm:leading-relaxed text-[#e69201] amber-glow">
+                <span id="typed-text"></span><span class="terminal-cursor" aria-hidden="true"></span>
+            </h1>
         </div>
-        <div class="flex flex-col">
-            <span id="brand-name" class="text-lg sm:text-xl font-bold tracking-wider text-white cyan-glow">Legacy in Orbit</span>
-    
+
+        <!-- زر "ابدأ رحلتك" -->
+        <div id="cta-wrapper" class="w-full sm:w-auto flex items-center justify-center opacity-0 translate-y-4 transition-all duration-700">
+            <a 
+                href="base.html"
+                id="start-btn"
+                class="space-btn w-full sm:w-auto min-w-[230px] px-8 py-3.5 sm:py-4 rounded-xl text-base sm:text-lg font-bold text-white flex items-center justify-center gap-3 cursor-pointer">
+                <span id="start-btn-text">ابدأ رحلتك</span>
+                <svg id="start-btn-icon" class="w-5 h-5 text-[#e69201] transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+            </a>
         </div>
-    </div>
 
-    <!-- زر تبديل اللغة (العربية / English) -->
-    <button 
-        id="lang-toggle" 
-        type="button"
-        aria-label="Switch Language"
-        class="group flex items-center gap-2 px-3.5 py-2 rounded-lg border border-slate-700/80 bg-slate-900/60 hover:border-sky-400/60 hover:bg-slate-800/80 text-xs sm:text-sm font-medium text-slate-200 transition-all duration-300 backdrop-blur-md cursor-pointer shadow-lg">
-        <svg class="w-4 h-4 text-sky-400 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-        </svg>
-        <span id="lang-label">English</span>
-    </button>
-</header>
+    </main>
 
-<!-- المحتوى الرئيسي في منتصف الشاشة -->
-<main class="relative z-10 flex-grow flex flex-col items-center justify-center px-5 sm:px-8 py-10 max-w-4xl mx-auto w-full text-center">
-    
-   
+    <!-- التذييل البسيط (Footer) -->
+    <footer class="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-8 py-5 text-center text-xs sm:text-sm text-slate-400/90">
+        <p id="footer-copy">© 2026 منصة إرث لاستكشاف الفضاء</p>
+    </footer>
 
-    <!-- حاوية النص المكتوب بتأثير Typing -->
-    <div class="typewriter">
-        <p>مرحبا بكم في إرث..استكشف إرث الفضاء العظيم..</p>
-    </div>
-
-    <!-- زر "ابدأ رحلتك" -->
-    <div class="buttons">
-        <a href="base.html" class="button">ابدأ رحلتك</a>
-    </div>
-
-</main>
-
-
-
-<script>
-    /**
-     * 1. قاموس النصوص لدعم اللغتين العربية والإنجليزية بشكل كامل
-     */
-    const translations = {
-        ar: {
-            dir: 'rtl',
-            langAttr: 'ar',
-            pageTitle: 'إرث | IRTH - استكشاف المعدات الفضائية المهجورة',
-            langToggleLabel: 'English',
-            statusText: 'النظام متصل // 2026',
-            terminalTag: 'بروتوكول_الأرشيف // المدار • القمر • المريخ',
-            heroText: 'مرحبا بكم في إرث لاستكشاف المعدات المهجورة في المدار على سطح القمر والكوكب الأحمر',
-            sectorOrbit: 'المدار الأرضي',
-            sectorMoon: 'سطح القمر',
-            sectorMars: 'الكوكب الأحمر',
-            startBtn: 'ابدأ رحلتك',
-            footerCopy: '© 2026 منصة إرث لاستكشاف الفضاء',
-            modalTitle: 'بوابة الاستكشاف // اختر الوجهة',
-            modalDesc: 'تم تفعيل الاتصال بأرشيف «إرث». اختر أحد القطاعات الفضائية التالية لمعاينة المعدات والمركبات المهجورة الموثقة في السجلات:',
-            cardOrbitTitle: 'المقبرة المدارية',
-            cardOrbitSub: 'أقمار صناعية خارج الخدمة ومحطات مدارية قديمة.',
-            cardMoonTitle: 'سطح القمر',
-            cardMoonSub: 'مركبات الهبوط، عربات الاستكشاف، ومعدات التجارب.',
-            cardMarsTitle: 'الكوكب الأحمر',
-            cardMarsSub: 'مسبارات المريخ الصامتة ومظلات الهبوط المتروكة.',
-            telemetryDefault: '> بانتظار تحديد القطاع لبدء المسح الراداري...',
-                telemetryData: {
-                    orbit: '> [المدار المرتفع - 36,000 كم]: رصد 412 قمرًا صناعيًا صامتًا في مدار المقبرة (Graveyard Orbit). الحالة: مستقرة.',
-                    moon: '> [بحر السكون - القمر]: رصد 68 مركبة هبوط وعربة قمرية متوقفة منذ عقود. الإشعاع الشمسي: مرتفع.',
-                    mars: '> [فوهة جيزيرو وسهل إيليزيوم - المريخ]: رصد 14 مسبارًا ودرعًا حراريًا مهجورًا مغطى بالغبار المريخي.'
-                }
+    <script>
+        /**
+         * 1. قاموس النصوص لدعم اللغتين العربية والإنجليزية
+         */
+        const translations = {
+            ar: {
+                dir: 'rtl',
+                langAttr: 'ar',
+                pageTitle: 'إرث | Legacy in Orbit - استكشاف الفضاء',
+                langToggleLabel: 'English',
+                heroText: 'مرحبا بكم في إرث لاستكشاف المعدات المهجورة في المدار على سطح القمر والكوكب الأحمر',
+                startBtn: 'ابدأ رحلتك',
+                footerCopy: '© 2026 منصة إرث لاستكشاف الفضاء'
             },
             en: {
                 dir: 'ltr',
                 langAttr: 'en',
-                pageTitle: 'IRTH | Exploring Abandoned Space Equipment',
+                pageTitle: 'Irth | Legacy in Orbit - Space Exploration',
                 langToggleLabel: 'العربية',
-                statusText: 'SYS.ONLINE // 2026',
-                terminalTag: 'ARCHIVE_PROTOCOL // ORBIT • MOON • MARS',
                 heroText: 'Welcome to Irth to explore abandoned equipment in orbit, on the surface of the Moon, and the Red Planet',
-                sectorOrbit: 'Earth Orbit',
-                sectorMoon: 'Lunar Surface',
-                sectorMars: 'Red Planet',
                 startBtn: 'Start Your Journey',
-                footerCopy: '© 2026 IRTH SPACE ARCHIVE',
-                modalTitle: 'EXPLORATION GATEWAY // SELECT SECTOR',
-                modalDesc: 'Connection to the IRTH archive established. Select a space sector below to inspect cataloged derelict spacecraft and hardware:',
-                cardOrbitTitle: 'Orbital Graveyard',
-                cardOrbitSub: 'Decommissioned satellites and legacy orbital stages.',
-                cardMoonTitle: 'Lunar Surface',
-                cardMoonSub: 'Historic landers, lunar rovers, and surface experiments.',
-                cardMarsTitle: 'The Red Planet',
-                cardMarsSub: 'Silent Martian rovers, landers, and discarded aeroshells.',
-                telemetryDefault: '> Awaiting sector selection to initiate radar telemetry...',
-                telemetryData: {
-                    orbit: '> [GEO GRAVEYARD - 36,000 KM]: 412 decommissioned satellites tracked in supersynchronous orbit. Status: Nominal.',
-                    moon: '> [MARE TRANQUILLITATIS - LUNA]: 68 derelict landers and rovers cataloged across lunar maria. Solar flux: High.',
-                    mars: '> [ELYSIUM & JEZERO - MARS]: 14 silent surface probes, backshells, and parachutes mapped beneath Martian dust.'
-                }
+                footerCopy: '© 2026 منصة إرث لاستكشاف الفضاء'
             }
         };
 
@@ -297,14 +226,14 @@ from, to {border-color: transparent}
         // عناصر واجهة المستخدم
         const htmlEl = document.documentElement;
         const typedTextEl = document.getElementById('typed-text');
+        const heroHeadingEl = document.getElementById('hero-heading');
         const langToggleBtn = document.getElementById('lang-toggle');
         const langLabelEl = document.getElementById('lang-label');
         const ctaWrapper = document.getElementById('cta-wrapper');
-        const sectorsPreview = document.getElementById('sectors-preview');
         const startBtnIcon = document.getElementById('start-btn-icon');
 
         /**
-         * 2. دالة تأثير الكتابة البرمجية السريعة (Fast Typing Effect)
+         * 2. دالة تأثير الكتابة البرمجية (Typewriter Effect)
          */
         function startTypingEffect(text) {
             if (typingTimer) {
@@ -312,19 +241,18 @@ from, to {border-color: transparent}
             }
 
             typedTextEl.textContent = '';
-            // إظهار الزر والقطاعات بسلاسة أثناء أو فور بدء الكتابة
-            ctaWrapper.classList.remove('opacity-0', 'translate-y-4');
-            sectorsPreview.classList.remove('opacity-0', 'translate-y-3');
+
+            requestAnimationFrame(() => {
+                ctaWrapper.classList.remove('opacity-0', 'translate-y-4');
+            });
 
             let index = 0;
-            // سرعة كتابة سريعة قليلاً ومريحة للعين (28 مللي ثانية لكل حرف)
             const baseSpeed = 28;
 
             function typeNextChar() {
                 if (index < text.length) {
                     typedTextEl.textContent += text.charAt(index);
                     index++;
-                    // تنويع طفيف جداً في السرعة لمحاكاة الكتابة الحية
                     const jitter = Math.random() * 14;
                     typingTimer = setTimeout(typeNextChar, baseSpeed + jitter);
                 }
@@ -334,100 +262,39 @@ from, to {border-color: transparent}
         }
 
         /**
-         * 3. دالة تحديث اللغة واتجاه الصفحة (RTL / LTR)
+         * 3. دالة تبديل اللغة وتحديث اتجاه الصفحة (RTL / LTR)
          */
         function applyLanguage(lang) {
             currentLang = lang;
             const t = translations[lang];
 
-            // تحديث سمات HTML والاتجاه
             htmlEl.setAttribute('lang', t.langAttr);
             htmlEl.setAttribute('dir', t.dir);
             document.title = t.pageTitle;
 
-            // تحديث النصوص في الصفحة
             langLabelEl.textContent = t.langToggleLabel;
-            document.getElementById('status-text').textContent = t.statusText;
-            document.getElementById('terminal-tag').textContent = t.terminalTag;
-            document.getElementById('sector-orbit').textContent = t.sectorOrbit;
-            document.getElementById('sector-moon').textContent = t.sectorMoon;
-            document.getElementById('sector-mars').textContent = t.sectorMars;
             document.getElementById('start-btn-text').textContent = t.startBtn;
             document.getElementById('footer-copy').textContent = t.footerCopy;
 
-            // تحديث نصوص النافذة التفاعلية
-            document.getElementById('modal-title').textContent = t.modalTitle;
-            document.getElementById('modal-desc').textContent = t.modalDesc;
-            document.getElementById('card-orbit-title').textContent = t.cardOrbitTitle;
-            document.getElementById('card-orbit-sub').textContent = t.cardOrbitSub;
-            document.getElementById('card-moon-title').textContent = t.cardMoonTitle;
-            document.getElementById('card-moon-sub').textContent = t.cardMoonSub;
-            document.getElementById('card-mars-title').textContent = t.cardMarsTitle;
-            document.getElementById('card-mars-sub').textContent = t.cardMarsSub;
-            document.getElementById('telemetry-output').textContent = t.telemetryDefault;
-
-            // عكس اتجاه أيقونة السهم في الزر حسب اللغة
+            // ضبط حجم الخط ليتناسب بصرياً بين خط Handjet العربي و IBM Plex Mono الإنجليزي
             if (lang === 'ar') {
+                heroHeadingEl.className = 'text-2xl sm:text-4xl md:text-[42px] font-semibold leading-relaxed text-[#e69201] amber-glow tracking-wide';
                 startBtnIcon.style.transform = 'rotate(180deg)';
             } else {
+                heroHeadingEl.className = 'text-xl sm:text-2xl md:text-3xl font-semibold leading-relaxed text-[#e69201] amber-glow';
                 startBtnIcon.style.transform = 'rotate(0deg)';
             }
 
-            // إعادة تشغيل تأثير الكتابة للنص الرئيسي باللغة الجديدة
             startTypingEffect(t.heroText);
         }
 
-        // مستمع حدث زر تبديل اللغة
         langToggleBtn.addEventListener('click', () => {
             const nextLang = currentLang === 'ar' ? 'en' : 'ar';
             applyLanguage(nextLang);
         });
 
-
         /**
-         * 4. التفاعل مع زر "ابدأ رحلتك" والنافذة التفاعلية (Modal)
-         */
-        const startBtn = document.getElementById('start-btn');
-        const missionModal = document.getElementById('mission-modal');
-        const closeModalBtn = document.getElementById('close-modal');
-        const telemetryOutput = document.getElementById('telemetry-output');
-        const targetCards = document.querySelectorAll('.target-card');
-
-        startBtn.addEventListener('click', () => {
-            missionModal.classList.remove('hidden');
-            missionModal.classList.add('flex');
-        });
-
-        function closeModal() {
-            missionModal.classList.add('hidden');
-            missionModal.classList.remove('flex');
-        }
-
-        closeModalBtn.addEventListener('click', closeModal);
-        missionModal.addEventListener('click', (e) => {
-            if (e.target === missionModal) closeModal();
-        });
-
-        // عرض بيانات المسح عند اختيار أحد القطاعات
-        targetCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const sector = card.getAttribute('data-target');
-                const message = translations[currentLang].telemetryData[sector];
-                telemetryOutput.textContent = '';
-                let i = 0;
-                const scanInterval = setInterval(() => {
-                    if (i < message.length) {
-                        telemetryOutput.textContent += message.charAt(i);
-                        i++;
-                    } else {
-                        clearInterval(scanInterval);
-                    }
-                }, 15);
-            });
-        });
-
-        /**
-         * 5. محاكاة خلفية الفضاء والنجوم المتحركة المتلألئة (Canvas Starfield)
+         * 4. محاكاة خلفية الفضاء والنجوم المتحركة المتلألئة (Canvas Starfield)
          */
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
@@ -442,30 +309,29 @@ from, to {border-color: transparent}
 
         function initStars() {
             stars = [];
-            // عدد النجوم يتناسب مع مساحة الشاشة
             const starCount = Math.floor((canvas.width * canvas.height) / 3800);
             for (let i = 0; i < starCount; i++) {
-                const isColored = Math.random() > 0.85;
+                const isColored = Math.random() > 0.82;
                 stars.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
                     radius: Math.random() * 1.5 + 0.3,
                     alpha: Math.random() * 0.8 + 0.2,
                     alphaChange: (Math.random() * 0.015 + 0.004) * (Math.random() < 0.5 ? 1 : -1),
-                    speedY: Math.random() * 0.14 + 0.02, // حركة انجراف بطيئة جداً للفضاء
+                    speedY: Math.random() * 0.14 + 0.02,
                     color: isColored 
-                        ? (Math.random() > 0.5 ? '#7dd3fc' : '#fde68a') 
+                        ? (Math.random() > 0.5 ? '#7dd3fc' : '#f59e0b') 
                         : '#ffffff'
                 });
             }
         }
 
         function spawnShootingStar() {
-            if (Math.random() < 0.006 && shootingStars.length < 2) {
+            if (Math.random() < 0.007 && shootingStars.length < 2) {
                 shootingStars.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * (canvas.height * 0.4),
-                    length: Math.random() * 70 + 40,
+                    length: Math.random() * 75 + 45,
                     speed: Math.random() * 7 + 5,
                     angle: Math.PI / 4 + (Math.random() * 0.2 - 0.1),
                     opacity: 1
@@ -474,11 +340,8 @@ from, to {border-color: transparent}
         }
 
         function animateStars() {
-            // خلفية سوداء حالكة للفضاء
-            ctx.fillStyle = '#020308';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // رسم وتحديث النجوم الثابتة والمتلألئة
             for (let i = 0; i < stars.length; i++) {
                 const s = stars[i];
                 s.alpha += s.alphaChange;
@@ -499,7 +362,6 @@ from, to {border-color: transparent}
                 ctx.fill();
             }
 
-            // رسم الشهب العابرة الخفيفة بين الحين والآخر
             spawnShootingStar();
             for (let i = shootingStars.length - 1; i >= 0; i--) {
                 const ss = shootingStars[i];
@@ -507,13 +369,14 @@ from, to {border-color: transparent}
                 const endY = ss.y - Math.sin(ss.angle) * ss.length;
 
                 const grad = ctx.createLinearGradient(ss.x, ss.y, endX, endY);
-                grad.addColorStop(0, rgba(186, 230, 253,0.6));
+                grad.addColorStop(0, 'rgba(186, 230, 253, 0.7)');
                 grad.addColorStop(1, 'rgba(186, 230, 253, 0)');
+                
                 ctx.beginPath();
                 ctx.moveTo(ss.x, ss.y);
                 ctx.lineTo(endX, endY);
                 ctx.strokeStyle = grad;
-                ctx.lineWidth = 1.3;
+                ctx.lineWidth = 1.4;
                 ctx.globalAlpha = ss.opacity;
                 ctx.stroke();
 
@@ -530,7 +393,6 @@ from, to {border-color: transparent}
             requestAnimationFrame(animateStars);
         }
 
-        // تهيئة الصفحة عند التحميل
         window.addEventListener('resize', resizeCanvas);
         window.onload = function() {
             resizeCanvas();
