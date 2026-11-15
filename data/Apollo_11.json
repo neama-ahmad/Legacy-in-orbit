@@ -1,0 +1,169 @@
+{
+    "mission_name": "Apollo 11",
+    "spacecraft_name": "Eagle",
+    "spacecraft_type": "Lunar Module",
+    "NSSDCA_COSPAR_ID": "1969-059C",
+    "mission_type": "Crewed Lunar Landing",
+    "landing_date": "1969-07-20",
+    "landing_location": "Mare Tranquillitatis (Sea of Tranquility)",
+    "astronauts": [
+        {
+            "name": "Neil A. Armstrong",
+            "role": "Commander",
+            "achievement": "First human to walk on the Moon"
+        },
+        {
+            "name": "Edwin E. Buzz Aldrin Jr.",
+            "role": "Lunar Module Pilot",
+            "achievement": "Second human to walk on the Moon"
+        },
+        {
+            "name": "Michael Collins",
+            "role": "Command Module Pilot",
+            "achievement": "Remained in lunar orbit"
+        }
+    ],
+    "description": "\n    The Apollo 11 Lunar Module (LM) Eagle was the first\n    crewed vehicle to land on the Moon.\n\n    It carried two astronauts, Commander Neil A. Armstrong\n    and LM pilot Edwin E. Buzz Aldrin Jr., the first men\n    to walk on the Moon.\n\n    The Lunar Module also carried the Early Apollo\n    Scientific Experiment Package (EASEP), which consisted\n    of scientific experiments deployed on the lunar surface.\n\n    The astronauts collected lunar rock and soil samples,\n    deployed scientific instruments, took photographs,\n    and explored the lunar surface.\n    ",
+    "mission_profile": {
+        "undocking_time": "17:44:00 UT",
+        "separation_maneuver": "18:11:53 UT",
+        "descent_engine_first_burn": "19:08 UT",
+        "descent_to_surface": "20:05 UT",
+        "landing_time": "20:17:40 UT",
+        "landing_date": "1969-07-20",
+        "landing_quote": "Houston, Tranquility Base here - the Eagle has landed.",
+        "first_step_time": "02:56:15 UT",
+        "first_step_date": "1969-07-21",
+        "first_step_quote": "That's one small step for man, one giant leap for mankind.",
+        "lunar_surface_duration": "21 hours and 36 minutes",
+        "liftoff_time": "17:54:01 UT",
+        "liftoff_date": "1969-07-21",
+        "docking_time": "21:34:00 UT",
+        "distance_traveled_meters": 250,
+        "lunar_samples_collected_kg": 21.55,
+        "landing_coordinates": {
+            "latitude": 0.67416,
+            "longitude": 23.47314
+        }
+    },
+    "spacecraft": {
+        "total_mass_kg": 15103,
+        "ascent_stage": {
+            "dry_mass_kg": 2445,
+            "propellant_mass_kg": 2376,
+            "height_meters": 2.8,
+            "width_meters": 4.0,
+            "length_meters": 4.3,
+            "crew_compartment_volume_m3": 6.65,
+            "engine_thrust_N": 15000
+        },
+        "descent_stage": {
+            "dry_mass_kg": 2034,
+            "initial_propellant_mass_kg": 8248,
+            "width_meters": 4.2,
+            "thickness_meters": 1.7,
+            "landing_legs": 4,
+            "engine_max_thrust_N": 45000
+        },
+        "propulsion_system": {
+            "fuel": "Aerozine 50",
+            "oxidizer": "Nitrogen Tetroxide",
+            "ascent_engine": "Fixed constant-thrust rocket",
+            "descent_engine": "Deep-throttling ablative rocket"
+        },
+        "power_system": {
+            "battery_type": "Silver-Zinc",
+            "number_of_batteries": 6
+        },
+        "guidance_system": [
+            "Radar ranging system",
+            "Inertial Measurement Unit",
+            "Apollo Guidance Computer"
+        ],
+        "communication_system": [
+            "S-band antenna",
+            "VHF antennas",
+            "Telemetry",
+            "Voice communication",
+            "Television communication"
+        ]
+    },
+    "EASEP": {
+        "full_name": "Early Apollo Scientific Experiment Package",
+        "total_mass_kg": 48,
+        "deployment_location": "Approximately 17 meters south of the Lunar Module",
+        "deployment_date": "1969-07-21",
+        "activation_time": "04:40:39 UT",
+        "shutdown_date": "1969-08-03",
+        "termination_date": "1969-08-27",
+        "components": [
+            {
+                "name": "Passive Seismometer",
+                "purpose": "Measured seismic activity and physical properties of the lunar crust and interior."
+            },
+            {
+                "name": "Lunar Dust Detector",
+                "purpose": "Measured dust accumulation and radiation damage to solar cells."
+            },
+            {
+                "name": "Solar Panels",
+                "purpose": "Provided electrical power during lunar daylight."
+            },
+            {
+                "name": "Communication System",
+                "purpose": "Transmitted scientific data to Earth and received commands."
+            },
+            {
+                "name": "Laser Ranging Retroreflector (LRRR)",
+                "purpose": "Allowed laser ranging measurements between Earth and the Moon.",
+                "attached_to_EASEP": false,
+                "deployment_distance_meters": 5
+            }
+        ],
+        "communication_frequencies_MHz": {
+            "uplink": 2119,
+            "downlink": 2276.5
+        },
+        "deployment_coordinates": {
+            "latitude": 0.6735,
+            "longitude": 23.473
+        }
+    },
+    "landing_site_coordinates": {
+        "reference_system": "Planetocentric Mean Earth/Polar Axis Lunar Reference System",
+        "ephemeris": "DE421",
+        "source": "Lunar Reconnaissance Orbiter images",
+        "coordinates": {
+            "Lunar_Module": {
+                "latitude_degrees": 0.67416,
+                "longitude_degrees": 23.47314
+            },
+            "LRRR": {
+                "latitude_degrees": 0.67345,
+                "longitude_degrees": 23.47307
+            },
+            "EASEP": {
+                "latitude_degrees": 0.6735,
+                "longitude_degrees": 23.473
+            }
+        }
+    },
+    "references": [
+        {
+            "name": "NASA NSSDCA Apollo 11",
+            "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C"
+        },
+        {
+            "name": "Apollo Landing Site Coordinates",
+            "url": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html"
+        },
+        {
+            "name": "Apollo Lunar Landing Details",
+            "url": "https://nssdc.gsfc.nasa.gov/planetary/lunar/apolloland.html"
+        },
+        {
+            "name": "Lunar Landing Site Map",
+            "url": "https://nssdc.gsfc.nasa.gov/planetary/lunar/moon_landing_map.jpg"
+        }
+    ]
+}

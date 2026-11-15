@@ -1,0 +1,188 @@
+{
+    "mission": [
+        {
+            "Mission Name": "Mars Pathfinder",
+            "Mission Type": "Lander, Rover",
+            "Launch Date": "Dec. 4, 1996",
+            "Launch Location": "Cape Canaveral Air Force Station, Florida",
+            "Rocket": "Delta II 7925",
+            "Landing Date": "July 4, 1997",
+            "Landing Site": "Ares Vallis, Mars",
+            "End of Mission": "Sept. 27, 1997",
+            "Mission Objective": "Land a rover on Mars, safely demonstrate a new landing method, and deliver the first-ever robotic rover to the Martian surface.",
+            "Scientific Goals": "Analyze the Martian atmosphere, climate, geology, and the composition of its rocks and soil.",
+            "Mission Results": "Returned 2.3 billion bits of information, including more than 16,500 images from the lander and 550 images from the rover, more than 15 chemical analyses of rocks and soil, and extensive data on winds and other weather factors."
+        }
+    ],
+    "equipment": [
+        {
+            "Equipment Name": "Mars Pathfinder Lander",
+            "Equipment Type": "Lander",
+            "Mass": "Not mentioned",
+            "Dimensions": "Not mentioned",
+            "Purpose": "Deliver an instrumented lander and a free-ranging robotic rover to the Martian surface and conduct scientific observations.",
+            "How It Works": "Directly entered the Martian atmosphere, assisted by a parachute and airbags, and transmitted data back to Earth.",
+            "Main Functions": "Landed on Mars, carried scientific instruments, captured images, analyzed weather, and deployed the Sojourner rover.",
+            "Deployment Date": "July 4, 1997",
+            "Deployment Method": "Direct atmospheric entry, parachute descent, and airbag cushioning",
+            "Current Status": "Mission ended",
+            "Location": "Ares Vallis, Mars",
+            "Additional Details": "Also named the Carl Sagan Memorial Station; returned more than 16,500 images.",
+            "Source Evidence": "Mars Pathfinder Lander section"
+        },
+        {
+            "Equipment Name": "Sojourner Rover",
+            "Equipment Type": "Robotic Rover",
+            "Mass": "23 pounds (10.6 kilograms)",
+            "Dimensions": "Full height of 1 foot (30 centimeters)",
+            "Purpose": "Provide engineering data on new technologies and conduct scientific observations on the Martian surface.",
+            "How It Works": "Rolled down the lander's rear ramp to explore the Martian surface and operated instruments such as the Alpha Proton X-ray Spectrometer.",
+            "Main Functions": "Traversed the Martian surface, took 550 images, and performed chemical analyses of rocks and soil.",
+            "Deployment Date": "July 5, 1997 (sol 2)",
+            "Deployment Method": "Rolled down the lander's rear ramp tilted at 20 degrees",
+            "Current Status": "Mission ended",
+            "Location": "Ares Vallis, Mars",
+            "Additional Details": "Named after American civil-rights crusader Sojourner Truth.",
+            "Source Evidence": "Sojourner Rover section"
+        },
+        {
+            "Equipment Name": "Airbag Landing System",
+            "Equipment Type": "Airbag System",
+            "Mass": "Not mentioned",
+            "Dimensions": "Bags measure 17 feet (5 meters) tall and about 17 feet (5 meters) in diameter; impacted at a speed of 31 mph (14 meters per second) and measuring 19 feet (5.8 meters) in diameter when bouncing",
+            "Purpose": "Cushion the impact of the spacecraft upon landing on Mars.",
+            "How It Works": "Enveloped and protected the spacecraft, inflated about 330 feet (100 meters) above the surface, and allowed the spacecraft to bounce like a giant beach ball about 15 times.",
+            "Main Functions": "Absorbed landing impact and protected the Mars Pathfinder spacecraft.",
+            "Deployment Date": "July 4, 1997",
+            "Deployment Method": "Inflated by an onboard computer about 330 feet (100 meters) above the surface",
+            "Current Status": "Not mentioned",
+            "Location": "Mars surface",
+            "Additional Details": "Composed of four large bags with six smaller, interconnected spheres within each bag.",
+            "Source Evidence": "Airbag Landing section"
+        },
+        {
+            "Equipment Name": "Parachute",
+            "Equipment Type": "Parachute",
+            "Mass": "Not mentioned",
+            "Dimensions": "Not mentioned",
+            "Purpose": "Slow the descent of the spacecraft through the thin Martian atmosphere.",
+            "How It Works": "Deployed during atmospheric entry to decelerate the spacecraft prior to airbag inflation.",
+            "Main Functions": "Descent deceleration",
+            "Deployment Date": "July 4, 1997",
+            "Deployment Method": "Atmospheric deployment during entry",
+            "Current Status": "Not mentioned",
+            "Location": "Martian atmosphere",
+            "Additional Details": "Assisted the direct entry method.",
+            "Source Evidence": "Airbag Landing section"
+        },
+        {
+            "Equipment Name": "Rear Ramp",
+            "Equipment Type": "Ramp",
+            "Mass": "Not mentioned",
+            "Dimensions": "Not mentioned",
+            "Purpose": "Provide a pathway for the Sojourner rover to move from the lander onto the Martian surface.",
+            "How It Works": "Deployed downward from the lander to allow the rover to roll off.",
+            "Main Functions": "Rover deployment",
+            "Deployment Date": "July 5, 1997",
+            "Deployment Method": "Tilted at 20 degrees from the surface",
+            "Current Status": "Not mentioned",
+            "Location": "Mars Pathfinder Lander",
+            "Additional Details": "Enabled safe deployment of the rover.",
+            "Source Evidence": "Sojourner Rover section"
+        },
+        {
+            "Equipment Name": "Altimeter",
+            "Equipment Type": "Sensor",
+            "Mass": "Not mentioned",
+            "Dimensions": "Not mentioned",
+            "Purpose": "Monitor the lander's distance from the ground during descent.",
+            "How It Works": "Operated onboard the lander to track altitude and trigger subsequent landing sequences like airbag inflation.",
+            "Main Functions": "Distance monitoring",
+            "Deployment Date": "July 4, 1997",
+            "Deployment Method": "Onboard lander integration",
+            "Current Status": "Not mentioned",
+            "Location": "Mars Pathfinder Lander",
+            "Additional Details": "Triggered airbag inflation at about 330 feet (100 meters) above the surface.",
+            "Source Evidence": "Airbag Landing section"
+        }
+    ],
+    "instruments": [
+        {
+            "Instrument Name": "Alpha Proton X-ray Spectrometer",
+            "Function": "Determined the elemental composition of rocks and soils.",
+            "How It Works": "Not mentioned",
+            "Equipment Associated With It": "Sojourner Rover",
+            "Measurements": "Elemental composition",
+            "Scientific Purpose": "Analyze the chemical makeup of Martian rocks and soils.",
+            "Source Evidence": "Mars Pathfinder Science Instruments section"
+        },
+        {
+            "Instrument Name": "Three Cameras",
+            "Function": "Provided images of surrounding terrain and documented performance and operating environment.",
+            "How It Works": "Not mentioned",
+            "Equipment Associated With It": "Mars Pathfinder Lander",
+            "Measurements": "Images",
+            "Scientific Purpose": "Geological studies and documentation of mission technologies.",
+            "Source Evidence": "Mars Pathfinder Science Instruments section"
+        },
+        {
+            "Instrument Name": "Atmospheric Structure Instrument/Meteorology Package",
+            "Function": "Measured the Martian atmosphere during descent and provided meteorological measurements at the lander.",
+            "How It Works": "Not mentioned",
+            "Equipment Associated With It": "Mars Pathfinder Lander",
+            "Measurements": "Atmospheric and meteorological data",
+            "Scientific Purpose": "Analyze atmospheric structure and weather factors during descent and on the surface.",
+            "Source Evidence": "Mars Pathfinder Science Instruments section"
+        }
+    ],
+    "discoveries": [
+        {
+            "Discovery Name": "Ancient liquid water and warm past",
+            "Description": "Findings from scientific instruments suggest that Mars was at one time in its past warm and wet, supported by observations of rounded pebbles and cobbles suggesting conglomerates formed in running water.",
+            "Scientific Importance": "Indicates that liquid water was stable on Mars during a warmer past.",
+            "Related Equipment": "Mars Pathfinder Lander, Sojourner Rover, Science Instruments",
+            "Scientific Evidence": "Rounded pebbles and cobbles at the landing site suggesting conglomerates formed in running water.",
+            "Source Evidence": "Mars Pathfinder Lander section and Mars Pathfinder Science Highlights section"
+        },
+        {
+            "Discovery Name": "Mars' central metallic core radius",
+            "Description": "Radio tracking provided a precise measure of the lander's location and Mars' pole of rotation, suggesting the radius of the planet's central metallic core.",
+            "Scientific Importance": "Constrains the size and internal structure of Mars' metallic core.",
+            "RelatedEquipment": "Mars Pathfinder Lander",
+            "Scientific Evidence": "Radio tracking measurements suggesting the radius is greater than 800 miles (1,300 kilometers) but less than roughly 1,250 miles (2,000 kilometers).",
+            "Source Evidence": "Mars Pathfinder Science Highlights section"
+        },
+        {
+            "Discovery Name": "Magnetic airborne dust and maghemite",
+            "Description": "Airborne dust on Mars is magnetic, with characteristics suggesting the magnetic mineral is maghemite.",
+            "Scientific Importance": "Identifies the specific magnetic mineral component of Martian airborne dust.",
+            "Related Equipment": "Mars Pathfinder Lander, Science Instruments",
+            "Scientific Evidence": "Characteristics of airborne dust matching maghemite, a very magnetic form of iron oxide.",
+            "Source Evidence": "Mars Pathfinder Science Highlights section"
+        },
+        {
+            "Discovery Name": "Dust devils and atmospheric mixing",
+            "Description": "Dust devils were observed and frequently measured, acting as a mechanism for mixing dust into the atmosphere.",
+            "Scientific Importance": "Explains the mechanism of dust distribution in the Martian atmosphere.",
+            "Related Equipment": "Mars Pathfinder Lander, Science Instruments",
+            "Scientific Evidence": "Measurements by temperature sensors and sensors for wind and pressure.",
+            "Source Evidence": "Mars Pathfinder Science Highlights section"
+        },
+        {
+            "Discovery Name": "Water ice clouds",
+            "Description": "Early morning water ice clouds were observed in the lower atmosphere.",
+            "Scientific Importance": "Provides insights into atmospheric composition and meteorological conditions on Mars.",
+            "Related Equipment": "Mars Pathfinder Lander, Science Instruments",
+            "Scientific Evidence": "Visual observations in the lower atmosphere.",
+            "Source Evidence": "Mars Pathfinder Science Highlights section"
+        },
+        {
+            "Discovery Name": "Abrupt atmospheric temperature fluctuations",
+            "Description": "Abrupt temperature fluctuations were recorded in the morning, suggesting the atmosphere is warmed by the planet's surface with heat convected upward in small eddies.",
+            "Scientific Importance": "Reveals thermal dynamics and heat transfer mechanisms in the lower Martian atmosphere.",
+            "Related Equipment": "Mars Pathfinder Lander, Science Instruments",
+            "Scientific Evidence": "Recorded morning temperature fluctuations and sensor data.",
+            "Source Evidence": "Mars Pathfinder Science Highlights section"
+        }
+    ]
+}

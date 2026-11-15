@@ -1,0 +1,298 @@
+{
+    "mission_information": {
+        "name": "Apollo 11",
+        "spacecraft_name": "Lunar Module (LM) \"Eagle\"",
+        "co_spar_id": "1969-059C",
+        "crew": [
+            {
+                "name": "Neil A. Armstrong",
+                "role": "Commander"
+            },
+            {
+                "name": "Edwin E. \"Buzz\" Aldrin, Jr.",
+                "role": "Lunar Module pilot"
+            }
+        ],
+        "command_service_module_pilot": "Michael Collins",
+        "landing_site": {
+            "region": "Mare Tranquilitatis (the Sea of Tranquility)",
+            "coordinates": {
+                "latitude_degrees_n": 0.67416,
+                "longitude_degrees_e": 23.47314,
+                "reference_frame": "DE 421 mean Earth/polar rotation axis reference frame",
+                "determination_source": "Lunar Reconnaissance Orbiter images"
+            }
+        },
+        "mission_events": [
+            {
+                "event": "LM undocked from CSM",
+                "time_ut": "17:44:00"
+            },
+            {
+                "event": "Separation maneuver commenced",
+                "time_ut": "18:11:53"
+            },
+            {
+                "event": "LM descent engine fired for 30 seconds",
+                "time_ut": "19:08"
+            },
+            {
+                "event": "LM descent engine fired for 756.3 seconds and descent began",
+                "time_ut": "20:05"
+            },
+            {
+                "event": "LM landed on the lunar surface",
+                "time_ut": "20:17:40",
+                "time_edt": "4:17:40 p.m.",
+                "date": "20 July 1969"
+            },
+            {
+                "event": "Armstrong stepped onto the lunar surface",
+                "time_ut": "02:56:15",
+                "date": "21 July 1969",
+                "time_edt": "10:56:15 p.m. July 20"
+            },
+            {
+                "event": "Aldrin stepped onto the lunar surface",
+                "time_ut": "03:15:15",
+                "note": "19 minutes after Armstrong"
+            },
+            {
+                "event": "EVA ended when LM hatch was closed",
+                "time_ut": "05:11:13",
+                "date": "21 July 1969"
+            },
+            {
+                "event": "LM lifted off from the Moon",
+                "time_ut": "17:54:01",
+                "date": "21 July 1969",
+                "surface_duration": "21 hours, 36 minutes"
+            },
+            {
+                "event": "Docked with the CSM",
+                "time_ut": "21:34:00",
+                "date": "21 July 1969"
+            },
+            {
+                "event": "LM jettisoned into lunar orbit",
+                "time_ut": "00:01:01",
+                "date": "22 July 1969"
+            }
+        ],
+        "surface_operations": {
+            "total_distance_traversed_meters": 250,
+            "max_range_from_lm_meters": 100,
+            "total_lunar_rock_and_soil_collected_kg": 21.55,
+            "aldrin_surface_duration": "1 hour 41 minutes",
+            "armstrong_surface_duration": "1 hour 53 minutes"
+        }
+    },
+    "spacecraft_subsystems": {
+        "total_spacecraft_mass_kg": 15103,
+        "ascent_stage": {
+            "dry_mass_kg": 2445,
+            "propellant_mass_kg": 2376,
+            "height_m": 2.8,
+            "width_m": "4.0 by 4.3",
+            "pressurized_crew_compartment_volume_cubic_meters": 6.65,
+            "equipment": [
+                "ingress-egress hatch",
+                "docking hatch",
+                "parabolic rendezvous radar antenna",
+                "steerable parabolic S-band antenna",
+                "2 in-flight VHF antennas",
+                "2 triangular windows",
+                "4 thrust chamber assemblies",
+                "ascent engine",
+                "aerozine 50 fuel tank",
+                "oxidizer tank",
+                "helium tank",
+                "liquid oxygen tank",
+                "gaseous oxygen tank",
+                "reaction control fuel tanks",
+                "control console",
+                "two side wall control panels"
+            ]
+        },
+        "descent_stage": {
+            "dry_mass_kg": 2034,
+            "propellant_mass_kg": 8248,
+            "shape": "octagonal prism",
+            "width_m": 4.2,
+            "thickness_m": 1.7,
+            "landing_legs": 4,
+            "footpads_span_distance_m": 9.4,
+            "bottom_clearance_m": 1.5,
+            "descent_engine_skirt_length_m": 1.0,
+            "equipment": [
+                "landing rocket",
+                "two tanks of aerozine 50 fuel",
+                "two tanks of nitrogen tetroxide oxidizer",
+                "water tanks",
+                "oxygen tanks",
+                "helium tanks",
+                "storage space for lunar equipment and experiments",
+                "astronaut egress platform and ladder"
+            ]
+        },
+        "propulsion_and_control": {
+            "descent_engine": "deep-throttling ablative rocket with a maximum thrust of about 45,000 N",
+            "ascent_engine": "fixed, constant-thrust rocket with a thrust of about 15,000 N",
+            "reaction_control_system": "four thrust modules, each composed of four 450 N thrust chambers and nozzles",
+            "communications": "S-band antenna for telemetry, TV, voice, and range; VHF for astronaut-LM and LM-CSM communications; redundant transceivers and equipment",
+            "environmental_control_system": "recycles oxygen and maintains temperature in electronics and cabin",
+            "power_source": "6 silver-zinc batteries",
+            "guidance_and_navigation": "radar ranging system, inertial measurement unit (gyroscopes and accelerometers), Apollo guidance computer"
+        }
+    },
+    "easep": {
+        "name": "Early Apollo Surface Experiments Package",
+        "description": "Set of scientific instruments emplaced at the Apollo 11 landing site; forerunner of ALSEP.",
+        "total_mass_kg": 48,
+        "deployment_location_relative_to_lm": "approximately 17 m south of the LM",
+        "coordinates": {
+            "latitude_degrees_n": 0.6735,
+            "longitude_degrees_e": 23.473
+        },
+        "uplink_frequency_mhz": 2119,
+        "downlink_frequency_mhz": 2276.5,
+        "components": [
+            {
+                "component_type": "Solar Panels",
+                "description": "Two canted rectangular solar panels positioned to face east and west, providing power during lunar day"
+            },
+            {
+                "component_type": "Antenna and Communications System",
+                "description": "Cylindrical antenna mast with antenna positioning mechanism to send data to Earth ground stations and receive commands"
+            },
+            {
+                "component_type": "Passive Seismometer",
+                "description": "Designed to measure seismic activity and physical properties of the lunar crust and interior"
+            },
+            {
+                "component_type": "Lunar Dust Detector",
+                "description": "Designed to measure dust accumulation and radiation damage to solar cells"
+            },
+            {
+                "component_type": "Isotope Heater",
+                "description": "Included on the square base"
+            }
+        ],
+        "timeline": {
+            "turned_on_ut": "04:40:39 on 21 July 1969",
+            "transmission_stopped_ut": "10:58:46 on 3 August 1969",
+            "experiment_terminated_date": "27 August 1969",
+            "operational_notes": "Exceeded planned maximum operating temperature by 30 C, functioned normally, restarted on next lunar day but failed to accept commands near noon on 27 August 1969."
+        }
+    },
+    "lrrr": {
+        "name": "Laser Ranging Retroreflector",
+        "description": "Considered part of EASEP, not attached to the unit, required no power.",
+        "deployment_location": "about 5 meters NNW of the EASEP"
+    },
+    "apollo_landing_site_coordinates": {
+        "reference_system": "planetocentric Mean Earth/Polar Axis Lunar Reference System - DE421 ephemeris",
+        "source_reference": "Wagner et al., Icarus 283, pp. 92-103 (2017), Lunar Reconnaissance Orbiter images",
+        "sites": [
+            {
+                "mission": "Apollo 11",
+                "lrrr": {
+                    "latitude_degrees_n": 0.67345,
+                    "longitude_degrees_e": 23.47307
+                },
+                "lunar_module": {
+                    "latitude_degrees_n": 0.67416,
+                    "longitude_degrees_e": 23.47314
+                }
+            },
+            {
+                "mission": "Apollo 12",
+                "alsep": {
+                    "latitude_degrees_n": -3.0098,
+                    "longitude_degrees_e": -23.4249
+                },
+                "lunar_module": {
+                    "latitude_degrees_n": -3.0128,
+                    "longitude_degrees_e": -23.4219
+                }
+            },
+            {
+                "mission": "Apollo 14",
+                "lrrr": {
+                    "latitude_degrees_n": -3.64417,
+                    "longitude_degrees_e": -17.47865
+                },
+                "alsep": {
+                    "latitude_degrees_n": -3.64419,
+                    "longitude_degrees_e": -17.47768
+                },
+                "lunar_module": {
+                    "latitude_degrees_n": -3.64589,
+                    "longitude_degrees_e": -17.47194
+                }
+            },
+            {
+                "mission": "Apollo 15",
+                "lrrr": {
+                    "latitude_degrees_n": 26.13341,
+                    "longitude_degrees_e": 3.6285
+                },
+                "alsep": {
+                    "latitude_degrees_n": 26.13406,
+                    "longitude_degrees_e": 3.62991
+                },
+                "lunar_module": {
+                    "latitude_degrees_n": 26.13239,
+                    "longitude_degrees_e": 3.6333
+                }
+            },
+            {
+                "mission": "Apollo 16",
+                "alsep": {
+                    "latitude_degrees_n": -8.9759,
+                    "longitude_degrees_e": 15.4986
+                },
+                "lunar_module": {
+                    "latitude_degrees_n": -8.9734,
+                    "longitude_degrees_e": 15.5011
+                }
+            },
+            {
+                "mission": "Apollo 17",
+                "alsep": {
+                    "latitude_degrees_n": 20.1923,
+                    "longitude_degrees_e": 30.7655
+                },
+                "lunar_module": {
+                    "latitude_degrees_n": 20.1911,
+                    "longitude_degrees_e": 30.7723
+                }
+            }
+        ]
+    },
+    "document_metadata": {
+        "nssdc_co_spar_id": "1969-059C",
+        "source_urls": [
+            "https://nssdc.gsfc.nasa.gov/planetary/lunar/moon_landing_map.jpg",
+            "https://nssdc.gsfc.nasa.gov/planetary/lunar/apolloland.html",
+            "https://nssdc.gsfc.nasa.gov/planetary/lunar/apolloloc.html",
+            "https://nssdc.gsfc.nasa.gov/planetary/lunar/apollo_impact.html",
+            "https://nssdc.gsfc.nasa.gov/planetary/lunar/apollo.html",
+            "https://nssdc.gsfc.nasa.gov/planetary/lunar/apollo_25th.html",
+            "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html"
+        ],
+        "author_curator": {
+            "name": "Dr. David R. Williams",
+            "email": "dave.williams@nasa.gov",
+            "mail_code": "NSSDCA, Mail Code 690.1",
+            "institution": "NASA Goddard Space Flight Center",
+            "address": "Greenbelt, MD 20771",
+            "phone": "+1-301-286-1258"
+        },
+        "nasa_official": {
+            "name": "Thomas Morgan",
+            "email": "thomas.h.morgan@nasa.gov"
+        },
+        "last_updated": "06 March 2017, DRW"
+    }
+}
